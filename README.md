@@ -58,3 +58,5 @@ All assets and code in this repository are under the Apache 2.0 license unless s
   year={2026}
 }
 ```
+
+[![Star History Chart](https://api.star-history.com/svg?repos=OpenDriveLab/RISE&type=Date)](https://star-history.com/#OpenDriveLab/RISE&Date)
