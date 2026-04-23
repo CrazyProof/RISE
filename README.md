@@ -3,7 +3,7 @@
 <div id="top" align="left">
   <a href="https://opendrivelab.com/rise/"><img src="https://img.shields.io/badge/Proj_Page-blue" alt="Project Page"></a>
   <a href="https://arxiv.org/abs/2602.11075"><img src="https://img.shields.io/badge/arXiv-2602.11075-b31b1b" alt="arXiv"></a>
-  <a href="https://x.com/jiazhi_yang2024/status/2022247675060797636"><img src="https://img.shields.io/badge/@jiazhi__yang2024-000000?logo=x&logoColor=white" alt="X"></a>
+  <a href="https://x.com/jiazhi_yang2024/status/2022247675060797636"><img src="https://img.shields.io/badge/summary-000000?logo=x&logoColor=white" alt="X"></a>
 </div>
 
 
