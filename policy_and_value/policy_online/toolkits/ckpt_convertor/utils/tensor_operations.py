@@ -58,14 +58,6 @@ class Load(Operation):
             else:
                 return src_tensor
         elif self.dtype_trans == "fp8_bf16":
-            # # trans to float32 and gpu, compute and trans to cpu
-            # assert src_tensor.dtype == torch.float8_e4m3fn, f'fp8 tensor is not e4m3fn but {src_tensor.dtype}. name is {self.name}'
-            # scale_inv = self.read(scale_inv_name)
-            # assert scale_inv.dtype == torch.float32, f'scale_inv is not float32 but {scale_inv.dtype}. name is {scale_inv_name}'
-            # src_tensor = src_tensor.to(device=Operation.global_device, dtype=torch.float32)
-            # scale_inv = scale_inv.to(device=Operation.global_device)
-            # with torch.cuda.device(Operation.global_device):
-            #     return weight_dequant(src_tensor, scale_inv).to(dtype=torch.bfloat16)
             pass
         elif self.dtype_trans == "bf16_bf16":
             assert src_tensor.dtype == torch.bfloat16, (
@@ -146,7 +138,6 @@ def de_dup(tensors):
         if not torch.allclose(tensors[0], i):
             tensor_max, _ = torch.max(stack_tensor, dim=0)
             tensor_min, _ = torch.min(stack_tensor, dim=0)
-            # tensor_avg = torch.sum(stack_tensor, dim=0) / len(tensors)
             diff = tensor_max - tensor_min
             avg_diff = torch.sum(abs(diff)) / diff.numel()
             max_diff = torch.sum(abs(diff.view(-1)))

@@ -68,7 +68,6 @@ def fsdp_sharding(
     min_size_bytes = min_size_mbytes * 2**20
 
     def _shard_arr(kp, array: jax.ShapeDtypeStruct):
-        # if fsdp is not actually going to be used, replicate everything to avoid extraneous logging
         if mesh.shape[FSDP_AXIS] == 1:
             return jax.sharding.NamedSharding(mesh, jax.sharding.PartitionSpec())
         # replicate scalar and vector arrays

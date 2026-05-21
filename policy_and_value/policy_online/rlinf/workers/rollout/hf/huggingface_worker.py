@@ -199,7 +199,6 @@ class MultiStepRolloutWorker(Worker):
                     # State transition logic
                     if self.state_mode == 'real_world':
                         result['forward_inputs']['is_expert_step'] = torch.ones(env_output["dones"].shape[0])
-                        # * need_infer = False
                         # After obtaining the image from the real_world state, switch to the model_generated state.
                         if any(key.startswith('next') for key in result.keys()) and self.model_generated_max_count > 0:
                             
@@ -311,8 +310,6 @@ class MultiStepRolloutWorker(Worker):
 
     def offload_model(self):
         self.hf_model = self.hf_model.to("cpu")
-        # if self.hf_model.config.add_reward_model:
-        #     self.hf_model.reward_model.model = self.hf_model.reward_model.model.to("cpu")
         if self.hf_model.config.add_dynamics_model:
             self.hf_model.dynamics_model.diffusion_model = self.hf_model.dynamics_model.diffusion_model.to("cpu")
             self.hf_model.dynamics_model.vae = self.hf_model.dynamics_model.vae.to("cpu")
@@ -322,22 +319,11 @@ class MultiStepRolloutWorker(Worker):
 
     def reload_model(self):
         self.hf_model = self.hf_model.to(self.device)
-        # if self.hf_model.config.add_reward_model:
-        #     self.hf_model.reward_model.model = self.hf_model.reward_model.model.to(self.device)
         if self.hf_model.config.add_dynamics_model:
             self.hf_model.dynamics_model.diffusion_model = self.hf_model.dynamics_model.diffusion_model.to(self.device)
             self.hf_model.dynamics_model.vae = self.hf_model.dynamics_model.vae.to(self.device)
             self.hf_model.dynamics_model.text_encoder = self.hf_model.dynamics_model.text_encoder.to(self.device)
 
-    # def sync_model_from_actor(self):
-    #     param_state_dict = self.recv(self._actor_group_name, src_rank=self._rank)
-
-    #     self.hf_model.load_state_dict(param_state_dict)
-    #     del param_state_dict
-    #     gc.collect()
-    #     torch.cuda.empty_cache()
-    
-    
     def sync_model_from_actor(self):
         # Receive the actor's state dict
         
@@ -353,7 +339,6 @@ class MultiStepRolloutWorker(Worker):
             # EMA Decay Factor (tau)
             # A value closer to 1 (e.g., 0.995) makes the rollout policy more stable/slow-changing.
             # You can fetch this from your config: self.cfg.rollout.get("ema_decay", 0.995)
-            # ema_decay = 0.995
             ema_decay = self.hf_model.config.rollout_ema_decay
             
             missing_keys = []

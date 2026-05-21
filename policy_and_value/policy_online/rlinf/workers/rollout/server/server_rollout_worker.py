@@ -175,7 +175,6 @@ class ServerRolloutWorker(Worker):
         self._data_source = asyncio.Queue()
 
         # Initialize training data storage
-        # storage_config = getattr(self._cfg, 'storage', None)
         storage_config = None
         if storage_config is not None:
             storage_config = dict(storage_config)

@@ -201,25 +201,11 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
             self.dynamics_model = DynamicsModel(self.config.dynamics_model_config)
             if use_torch_compile:
                 self.dynamics_model.pipe.transformer = torch.compile(self.dynamics_model.pipe.transformer)
-                
-                # * No improvement.
-                # self.dynamics_model.pipe.transformer = torch.compile(self.dynamics_model.pipe.transformer, mode="max-autotune")
-
-
-                # * No improvement.
-                # self.dynamics_model.pipe.transformer = torch.compile(self.dynamics_model.pipe.transformer, mode="reduce-overhead")
-
-                # self.dynamics_model.pipe.compile_repeated_blocks(fullgraph=True)
-
-            # self.dynamics_model.pipe.vae = torch.compile(self.dynamics_model.pipe.vae)
 
         if self.config.add_reward_model:
             self.reward_model = RewardModel(self.config.reward_model_config, self.config.reward_model_ckpt)
             if use_torch_compile:
                 self.reward_model.model.sample_values = torch.compile(self.reward_model.model.sample_values, mode="reduce-overhead")
-
-                # TODO: try max-autotune
-                # self.reward_model.model.sample_values = torch.compile(self.reward_model.model.sample_values, mode="max-autotune")
 
         # noise head for flow-noise
         if self.config.noise_method == "flow_noise":
@@ -338,7 +324,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
             *transformed_samples,
         )
 
-        #  * outputs['actions'].shape  torch.Size([8, 50, 14])
         outputs["actions"] = outputs["actions"][:, : self.config.action_chunk]
 
         return outputs
@@ -377,9 +362,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
         # *     NO advantage-related info included in text prompt
         
         # * with_advantage_condition = True
-        # observation['action_advantage']
-        # tensor([ 6,  8, 10,  7, 10,  6,  1,  8])
-        
         
         observation = _model.Observation.from_dict(observation)
         if self.config.offline_rl:
@@ -584,8 +566,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
                 min_val=self.dynamics_model.args.min_val,
                 max_val=self.dynamics_model.args.max_val)
 
-
-            # self.dynamics_model.device 'cuda'
             wm_preds = self.dynamics_model.infer(obs=wm_obs.to(dtype=torch.bfloat16),
                                                 act_tokens=wm_act_tokens.to(device=wm_obs.device, dtype=torch.bfloat16),
                                                 num_denois_steps=25,
@@ -596,11 +576,8 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
 
             if self.config.add_reward_model:
                 
-                # assert not self.config.chunk_reward, "Chunk reward is not supported for reward model."
-
                 history_obs = deque(maxlen=3*self.config.wm_action_interval)
                 pred_obs = rearrange(wm_preds['video'], '(b v) c t h w -> b v c t h w', v=3)
-                # pred_next_obs: torch.Size([8, 3, 3, 29, 192, 256])
 
                 
                 reward = torch.zeros(len(pred_obs), self.config.action_chunk, dtype=torch.float32)  # * [8, 25]
@@ -611,7 +588,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
                 if self.config.wm_action_interval == 1:
                     assert pred_end - pred_start == self.config.action_chunk, \
                     f"Dynamics model prediction batch size does not match action batch size, {pred_end - pred_start} vs {actions_decoded.shape[0]}"   
-                    # {pred_end - pred_start} vs {actions_decoded.shape[0]}, 25 vs 8
                     
                 pred_top_all_steps = []
                 pred_left_all_steps = []
@@ -622,8 +598,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
                 start_left = observation.images["left_wrist_0_rgb"].clone()
                 start_right = observation.images["right_wrist_0_rgb"].clone()
                 
-                
-                # * TODO: check history?
                 if self.config.use_his_obs:
                     for t in range(history_obs.maxlen):
                         pred_next_obs = pred_obs[:,:,:, pred_end-2-t] # (b, v, c, h, w)
@@ -926,10 +900,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
             state_infer = state
             state = None
         
-        # * denoised_inds.shape --> [8, 5], all 4
-        # * denoise_inds[0]: tensor([4, 4, 4, 4, 4])
-        # * denoise_inds[1]: tensor([4, 4, 4, 4, 4])
-
         # denoise step
         for idx in range(num_steps):
             # sample mean var val
@@ -1243,7 +1213,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
         suffix_out = suffix_out.to(dtype=torch.float32)
         return suffix_out
 
-    # TODO: to check potential nan here
     def get_logprob_norm(self, sample, mu, sigma):
         # logprob = log p(x|mu,sigma) = -log(sigma) - 0.5 * log(2 * pi) - 0.5 * ((x - mu) / sigma) ** 2
         if self.config.safe_get_logprob:

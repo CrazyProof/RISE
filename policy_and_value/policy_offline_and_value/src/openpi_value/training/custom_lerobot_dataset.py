@@ -278,9 +278,6 @@ class LeRobotDatasetMetadata:
 
         self.episodes_stats[episode_index] = episode_stats
         
-        # self.stats = aggregate_stats([self.stats, episode_stats]) if self.stats else episode_stats
-        
-        
         write_episode_stats(episode_index, episode_stats, self.root)
 
     def update_video_info(self) -> None:
@@ -335,7 +332,6 @@ class LeRobotDatasetMetadata:
                 "Dataset features must either come from a Robot or explicitly passed upon creation."
             )
         else:
-            # TODO(aliberts, rcadene): implement sanity check for features
             features = {**features, **DEFAULT_FEATURES}
 
             # check if none of the features contains a "/" in their names,
@@ -381,10 +377,9 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         
         
         use_suboptimal_progress: bool = False,
-        # suboptimal_progress_multiplier: int = -1,  # * -1. or 0.
         suboptimal_progress_multiplier: float = 1.,  # * -1. or 0. or 1.
         
-        suboptimal_progress_offset: float = 0.,    # TODO: use -1 for failure data.
+        suboptimal_progress_offset: float = 0.,
     ):
         """
         2 modes are available for instantiating this class, depending on 2 different use cases:
@@ -510,9 +505,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         assert self.preceding_skipping_ratio <= 0.5
         assert self.trailing_skipping_ratio <= 0.3
         
-        # assert self.trailing_skipping_ratio == 0., "Don't use it, it's making policy worse."
-        
-        # self.use_suboptimal_progress = use_suboptimal_progress
         is_failure_data = ('infer' in self.repo_id or 'fail' in self.repo_id) and (not 'success' in self.repo_id)
         self.is_infer_data = 'infer' in self.repo_id
 
@@ -528,12 +520,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         
         self.suboptimal_progress_offset = suboptimal_progress_offset
         assert self.suboptimal_progress_offset in [0., -1.], "currently only use 0. or -1.0 for offset."
-        
-        # * Pi06 setting:
-        # * use_suboptimal_progress = True
-        # * suboptimal_progress_multiplier = 1
-        # * suboptimal_progress_offset = -1
-        
         
         # Unused attributes
         self.image_writer = None
@@ -579,7 +565,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
                 f"Please check your dataset or adjust the minimum episode length threshold."
             )
 
-        # TODO: use max episode length.
         if self.episodes is not None and self.meta._version >= packaging.version.parse("v2.1"):
             # * True, go here
             episodes_stats = [self.meta.episodes_stats[ep_idx] for ep_idx in self.episodes]
@@ -625,20 +610,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
             # self.episode_data_index['from'] contains global start index of each episode
             # self.episode_data_index['to'] contains global end index (exclusive)
             num_episodes = len(self.episode_data_index['from'])
-            
-            # for i in range(num_episodes):
-            #     start_idx = self.episode_data_index['from'][i].item()
-            #     end_idx = self.episode_data_index['to'][i].item()
-            #     episode_len = end_idx - start_idx
-                
-            #     # Calculate how many frames to skip
-            #     skip_n = int(episode_len * self.preceding_skipping_ratio)
-                
-            #     # Ensure we don't skip the whole episode (safety check)
-            #     skip_n = min(skip_n, episode_len - 1)
-                
-            #     # Add the valid range (shifted start to end) to our map
-            #     self.index_map.extend(range(start_idx + skip_n, end_idx))
             
             for i in range(num_episodes):
                 start_idx = self.episode_data_index['from'][i].item()
@@ -755,8 +726,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         dataset will be downloaded. Thanks to the behavior of snapshot_download, if the files are already present
         in 'local_dir', they won't be downloaded again.
         """
-        # TODO(rcadene, aliberts): implement faster transfer
-        # https://huggingface.co/docs/huggingface_hub/en/guides/download#faster-downloads
         files = None
         ignore_patterns = None if download_videos else "videos/"
         if self.episodes is not None:
@@ -793,7 +762,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
                 print(f"Error loading dataset from files: {e}")
                 import pdb; pdb.set_trace()
 
-        # TODO(aliberts): hf_dataset.set_format("torch")
         hf_dataset.set_transform(hf_transform_to_torch)
         return hf_dataset
 
@@ -802,7 +770,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         ft_dict = {col: [] for col in features}
         hf_dataset = datasets.Dataset.from_dict(ft_dict, features=features, split="train")
 
-        # TODO(aliberts): hf_dataset.set_format("torch")
         hf_dataset.set_transform(hf_transform_to_torch)
         return hf_dataset
 
@@ -811,11 +778,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         """Frames per second used during data collection."""
         return self.meta.fps
 
-    # @property
-    # def num_frames(self) -> int:
-    #     """Number of frames in selected episodes."""
-    #     return len(self.hf_dataset) if self.hf_dataset is not None else self.meta.total_frames
-    
     @property
     def num_frames(self) -> int:
         """Number of frames in selected episodes."""
@@ -901,7 +863,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         return item
 
     def __len__(self):
-        # return self.num_frames
         if self.index_map is not None:
             return len(self.index_map)
         return self.num_frames
@@ -918,7 +879,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         if self.delta_indices is not None:
             # * Entering here
 
-            # query_indices, padding = self._get_query_indices(idx, ep_idx)
             query_indices, padding = self._get_query_indices(idx, self.ep_idx_to_arr_idx[ep_idx])
 
         if len(self.meta.video_keys) > 0:
@@ -971,22 +931,15 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         episode_length = self.meta.episodes[ep_idx]["length"]
         episode_level_dict['episode_length'] = episode_length
         
-        # TODO: Add max_episode_length
-        # max_episode_length = self.meta.info.get('max_episode_length', None)
-
         # * query_indices is associated with ep_idx
         query_indices = None
         if self.delta_indices is not None:
             # * Entering here
 
-            # query_indices, padding = self._get_query_indices(idx, ep_idx)
             query_indices, padding = self._get_query_indices(idx, self.ep_idx_to_arr_idx[ep_idx])
             
             query_result = self._query_hf_dataset(query_indices)  # * ['action']
 
-            # item = {**item, **padding}
-            # for key, val in query_result.items():
-            #     item[key] = val
             episode_level_dict = {**episode_level_dict, **padding}
             for key, val in query_result.items():
                 episode_level_dict[key] = val
@@ -998,7 +951,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         # Add task as a string
         task_idx = item["task_index"].item()
         
-        # item["task"] = self.meta.tasks[task_idx]
         episode_level_dict["task"] = self.meta.tasks[task_idx]
 
         item_sequence.append(item.copy())
@@ -1021,7 +973,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
 
                 start_index_needle = idx - 1
                 while start_index_needle >= 0:
-                    # start_item = self.hf_dataset[start_index_needle]
                     start_item = self.get_sample_with_imgs_from_idx(start_index_needle)
                     start_episode_ind = start_item['episode_index'].item()
                     start_timestamp = start_item['timestamp'].item()
@@ -1032,7 +983,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
                     start_index_needle -= 1
 
                 start_frame_index = start_index_needle + 1
-                # start_item = self.hf_dataset[start_frame_index]
                 start_item = self.get_sample_with_imgs_from_idx(start_frame_index)
                 start_episode_ind = start_item['episode_index'].item()
                 start_timestamp = start_item['timestamp'].item()
@@ -1052,7 +1002,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         for his_idx in range(-N_HISTORY, 0):
 
             check_his_idx = his_idx + idx
-            # check_item = self.hf_dataset[check_his_idx]
             check_item = self.get_sample_with_imgs_from_idx(check_his_idx)
             check_episode_ind = check_item['episode_index'].item()
             check_timestamp   = check_item['timestamp'].item()
@@ -1404,7 +1353,6 @@ class CustomLeRobotDataset(torch.utils.data.Dataset):
         if image_writer_processes or image_writer_threads:
             obj.start_image_writer(image_writer_processes, image_writer_threads)
 
-        # TODO(aliberts, rcadene, alexander-soare): Merge this with OnlineBuffer/DataBuffer
         obj.episode_buffer = obj.create_episode_buffer()
 
         obj.episodes = None
@@ -1435,16 +1383,10 @@ class CustomMultiLeRobotDataset(torch.utils.data.Dataset):
         download_videos: bool = True,
         video_backend: str | None = None,
         
-        # is_suboptimal: list[int] = None,
-
         **custom_kwargs,
     ):
         super().__init__()
         self.repo_ids = repo_ids
-
-        # TODO: we need to check this.
-        # self.tolerances_s = tolerances_s if tolerances_s else dict.fromkeys(repo_ids, 0.0001)   # * Original
-
 
         self.tolerances_s = tolerances_s if tolerances_s else dict.fromkeys(repo_ids, 0.1)
 
@@ -1486,11 +1428,6 @@ class CustomMultiLeRobotDataset(torch.utils.data.Dataset):
 
         self.image_transforms = image_transforms
         self.delta_timestamps = delta_timestamps
-
-        # TODO(rcadene, aliberts): We should not perform this aggregation for datasets
-        # with multiple robots of different ranges. Instead we should have one normalization
-        # per robot.
-        # self.stats = aggregate_stats([dataset.meta.stats for dataset in self._datasets])
 
     @property
     def repo_id_to_index(self):

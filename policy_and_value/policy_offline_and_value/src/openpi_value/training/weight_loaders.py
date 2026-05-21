@@ -52,7 +52,6 @@ class CheckpointWeightLoader(WeightLoader):
         loaded_params = _model.restore_params(download.maybe_download(self.params_path), restore_type=np.ndarray)
         # Add all missing LoRA weights.
         
-        # return _merge_params(loaded_params, params, missing_regex=".*lora.*")
         return _merge_params_lenient(loaded_params, params, missing_regex=".*lora.*")  # * Custom: allow new params
     
 
@@ -73,7 +72,6 @@ class PaliGemmaWeightLoader(WeightLoader):
         loaded_params = {"PaliGemma": flax.traverse_util.unflatten_dict(flat_params, sep="/")["params"]}
         # Add all missing weights.
         
-        # return _merge_params(loaded_params, params, missing_regex=".*")
         return _merge_params_lenient(loaded_params, params, missing_regex=".*lora.*")  # * Custom: allow new params
 
 

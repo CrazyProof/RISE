@@ -77,7 +77,6 @@ def preprocess_embodied_advantages_inputs(
     Unify names & formats, align with math interfaces.
     """
     if kwargs["reward_type"] == "chunk_level":
-        # TODO: need check
         # rewards, dones, loss_mask, loss_mask_sum: [n_chunk_steps, bsz, num_action_chunks] -> [n_chunk_steps, bsz, 1]
         rewards = rewards.sum(dim=-1, keepdim=True)
         dones = dones.max(dim=-1, keepdim=True)[0]

@@ -213,7 +213,6 @@ class Attention(nn.Module):
                 f"Attention mask with shape {attn_mask.shape} but shapes for q and k are: {q.shape} and {k.shape}"
             )
 
-        # big_neg = jnp.finfo(logits.dtype).min
         big_neg = -2.3819763e38  # See gemma/modules.py
         masked_logits = jnp.where(attn_mask[:, :, None, :, :], logits, big_neg)
 

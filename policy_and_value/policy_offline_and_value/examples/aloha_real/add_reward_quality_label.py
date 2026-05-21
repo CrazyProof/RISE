@@ -41,9 +41,6 @@ def add_is_suboptimal_column(data_root: str, output_root: str):
             new_column_array = pa.array(np.ones(num_rows))   # * Expert
             
             
-            # new_column_array = pa.array(np.ones(num_rows) * -1.)   # * Negative
-            
-            
             # 3. Add the new column
             # Note: We append the column to the original table *in memory*
             new_table = parquet_table.append_column(
@@ -79,7 +76,6 @@ def deal_mata(data_root: str, output_root: str):
         }
     # * dump back to file
     
-    # os.makedirs(os.path.join(output_root, 'meta'), exist_ok=True)
     with open(os.path.join(output_root, 'meta', 'info.json'), 'w') as f:
         json.dump(meta_info, f, indent=4)
 

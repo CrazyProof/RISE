@@ -198,7 +198,6 @@ class RolloutManager(ComponentManager):
     - migrate : migrate the rollout instances
         - migrate_policy : return the max number of rollout instances could migrate out
         - find_release_instance_num_needed : find the number of rollout instances needed to release
-        - TODO(balance_batches) : balance the batches between the rollout instances
     """
 
     def __init__(

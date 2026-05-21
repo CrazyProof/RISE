@@ -742,15 +742,6 @@ class CustomPipeline(DiffusionPipeline, FromSingleFileMixin):
 
         # change into no prompt or empty prompt for action-only generation
         
-        # act_tokens = act_tokens.repeat(1, 14, 1)
-        # B, L, D = act_tokens.shape
-        # rand_indices = torch.randint(0, L, (B, 2), device=act_tokens.device)
-        # rand_extra = torch.stack([act_tokens[i, rand_indices[i]] for i in range(B)])  # [B, 2, D]
-        # act_tokens = torch.cat([act_tokens, rand_extra], dim=1)
-        # act_tokens = act_tokens.to(device=device, dtype=prompt_embeds.dtype)
-        # act_tokens = self.transformer.act_in(act_tokens)
-        # prompt_embeds = prompt_embeds + act_tokens
-        
         if len(image.shape) == 4:  # in this case, a single image act as input
             image = image.unsqueeze(2)
         image = image.to(device=device, dtype=prompt_embeds.dtype)  # out_shape b, c, t, h, w, range(-1,1)
@@ -848,7 +839,6 @@ class CustomPipeline(DiffusionPipeline, FromSingleFileMixin):
                     latent_model_input = torch.cat([latents] * 2) if self.do_classifier_free_guidance else latents.clone()
                     latent_model_input = latent_model_input.to(prompt_embeds.dtype)
 
-                    # TODO: only compute video in the first most noisy timestep
                     compute_video = i == 0 or return_video
                     store_buffer = i == 0 and not return_video
 

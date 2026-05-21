@@ -257,9 +257,6 @@ class FSDPStrategy(FSDPStrategyBase):
         Returns:
             - float: The total norm of the gradients before clipping.
         """
-        # return float(
-        #     model.clip_grad_norm_(self.cfg.optim.clip_grad, norm_type=norm_type).item()
-        # )
         
         device = torch.device(f"cuda:{int(os.environ['LOCAL_RANK'])}")
         max_norm = float(self.cfg.optim.clip_grad)

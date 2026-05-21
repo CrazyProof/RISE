@@ -114,7 +114,6 @@ def load_condition_models(
             cache_dir=cache_dir
         )
     else:
-        # logger.warning('You are not lodding the checkpoint of the text Embedder, please check the code!!!')
         config = textenc_class.config_class.from_pretrained(
             model_id,
             subfolder="text_encoder",

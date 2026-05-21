@@ -51,19 +51,11 @@ class ImageRecorder:
             f"{cam_name}_rgb_image",
             self.bridge.imgmsg_to_cv2(data.images[0], desired_encoding="bgr8"),
         )
-        # setattr(
-        #     self,
-        #     f"{cam_name}_depth_image",
-        #     self.bridge.imgmsg_to_cv2(data.images[1], desired_encoding="mono16"),
-        # )
         setattr(
             self,
             f"{cam_name}_timestamp",
             data.header.stamp.secs + data.header.stamp.nsecs * 1e-9,
         )
-        # setattr(self, f'{cam_name}_secs', data.images[0].header.stamp.secs)
-        # setattr(self, f'{cam_name}_nsecs', data.images[0].header.stamp.nsecs)
-        # cv2.imwrite('/home/lucyshi/Desktop/sample.jpg', cv_image)
         if self.is_debug:
             getattr(self, f"{cam_name}_timestamps").append(
                 data.images[0].header.stamp.secs + data.images[0].header.stamp.nsecs * 1e-9

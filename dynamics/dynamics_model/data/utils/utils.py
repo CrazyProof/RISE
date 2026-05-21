@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 import random
-# from pytorch3d.transforms.rotation_conversions import quaternion_to_matrix
 
 
 def gen_batch_ray_parellel(intrinsic,c2w,W,H):
@@ -137,15 +136,3 @@ def intrin_crop_transform(intrinsic, h_start, w_start):
     cx_new = cx - w_start
     cy_new = cy - h_start
     return torch.tensor([[fx,0,cx_new],[0,fy,cy_new],[0,0,1]])
-
-# def get_transformation_matrix_from_quat(xyz_quat):
-#     ### xyz_quat: tensor, (b, 7)
-#     rot_quat = xyz_quat[:, 3:]
-#     ### in pytorch3d, quaternion_to_matrix takes wxyz-quat as input
-#     rot_quat = rot_quat[:, [3,0,1,2]]
-#     rot = quaternion_to_matrix(rot_quat)
-#     trans = xyz_quat[:, :3]
-#     output = torch.eye(4).unsqueeze(0).repeat(xyz_quat.shape[0], 1, 1)
-#     output[:,:3,:3] = rot
-#     output[:,:3, 3] = trans
-#     return output

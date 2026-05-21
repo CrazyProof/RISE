@@ -72,7 +72,6 @@ class Pi0(_model.BaseModel):
         self.pi05 = config.pi05
         paligemma_config = _gemma.get_config(config.paligemma_variant)
         action_expert_config = _gemma.get_config(config.action_expert_variant)
-        # TODO: rewrite gemma in NNX. For now, use bridge.
         llm = nnx_bridge.ToNNX(
             _gemma.Module(
                 configs=[paligemma_config, action_expert_config],
@@ -164,7 +163,6 @@ class Pi0(_model.BaseModel):
 
         sorted_obs_images_keys = sorted(list(obs.images.keys()), key=simple_sort_key)
 
-        # for name in obs.images:
         for name in sorted_obs_images_keys:
             image_tokens, _ = self.PaliGemma.img(obs.images[name], train=False)
 
@@ -189,8 +187,6 @@ class Pi0(_model.BaseModel):
 
         
         tokens = jnp.concatenate(tokens, axis=1)
-
-        # * TODO: sanity check the number of tokens.
 
         # * No his, no start: (32, 986, 2048)
         # * No his, with start (three views): (32, 1736, 2048)
@@ -223,13 +219,6 @@ class Pi0(_model.BaseModel):
         ar_mask = []
         tokens = []
         if not self.pi05:
-            # add a single state token
-            # state_token = self.state_proj(obs.state)[:, None, :]
-            # tokens.append(state_token)
-            # input_mask.append(jnp.ones((obs.state.shape[0], 1), dtype=jnp.bool_))
-            # # image/language inputs do not attend to state or actions
-            # ar_mask += [True]
-
             if self.p_mask_ego_state > 0.0:
                 # * Randomly mask the ego state with a probability of p_mask_ego_state
                 mask = jax.random.bernoulli(jax.random.PRNGKey(0), self.p_mask_ego_state, shape=obs.state.shape[0])
@@ -240,7 +229,6 @@ class Pi0(_model.BaseModel):
 
 
             state_token = self.state_proj(ego_state)[:, None, :]  # * (8, 1, 1024)
-            # state_token = self.state_proj(obs.state)[:, None, :]  # * (8, 32)
             tokens.append(state_token)
             input_mask.append(jnp.ones((obs.state.shape[0], 1), dtype=jnp.bool_))
             # image/language inputs do not attend to state or actions
@@ -431,8 +419,6 @@ class Pi0(_model.BaseModel):
         attn_mask = make_attn_mask(input_mask, ar_mask)
         positions = jnp.cumsum(input_mask, axis=1) - 1
 
-        # prefix_attn_mask = make_attn_mask(prefix_mask, prefix_ar_mask)
-        # positions = jnp.cumsum(prefix_mask, axis=1) - 1
         (prefix_out, suffix_out), kv_cache = self.PaliGemma.llm(
             [prefix_tokens, suffix_tokens], 
             mask=attn_mask, 

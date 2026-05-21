@@ -1080,7 +1080,6 @@ class AutoencoderKLLTXVideo(ModelMixin, ConfigMixin, FromOriginalModelMixin):
             return self.tiled_encode(x)
 
         if self.use_framewise_encoding:
-            # TODO(aryan): requires investigation
             raise NotImplementedError(
                 "Frame-wise encoding has not been implemented for AutoencoderKLLTXVideo, at the moment, due to "
                 "quality issues caused by splitting inference across frame dimension. If you believe this "
@@ -1129,7 +1128,6 @@ class AutoencoderKLLTXVideo(ModelMixin, ConfigMixin, FromOriginalModelMixin):
             return self.tiled_decode(z, temb, return_dict=return_dict)
 
         if self.use_framewise_decoding:
-            # TODO(aryan): requires investigation
             raise NotImplementedError(
                 "Frame-wise decoding has not been implemented for AutoencoderKLLTXVideo, at the moment, due to "
                 "quality issues caused by splitting inference across frame dimension. If you believe this "
@@ -1221,7 +1219,6 @@ class AutoencoderKLLTXVideo(ModelMixin, ConfigMixin, FromOriginalModelMixin):
             row = []
             for j in range(0, width, self.tile_sample_stride_width):
                 if self.use_framewise_encoding:
-                    # TODO(aryan): requires investigation
                     raise NotImplementedError(
                         "Frame-wise encoding has not been implemented for AutoencoderKLLTXVideo, at the moment, due to "
                         "quality issues caused by splitting inference across frame dimension. If you believe this "
@@ -1287,7 +1284,6 @@ class AutoencoderKLLTXVideo(ModelMixin, ConfigMixin, FromOriginalModelMixin):
             row = []
             for j in range(0, width, tile_latent_stride_width):
                 if self.use_framewise_decoding:
-                    # TODO(aryan): requires investigation
                     raise NotImplementedError(
                         "Frame-wise decoding has not been implemented for AutoencoderKLLTXVideo, at the moment, due to "
                         "quality issues caused by splitting inference across frame dimension. If you believe this "

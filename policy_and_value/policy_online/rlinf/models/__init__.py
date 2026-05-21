@@ -80,8 +80,6 @@ def get_model(model_path, cfg: DictConfig, override_config_kwargs=None):
         
         safetensors.torch.load_model(model, weight_path, strict=False)
         model.paligemma_with_expert.to_bfloat16_for_selected_params("bfloat16")
-        # fsdp replace
-        # model.paligemma_with_expert.replace_gemma_decoder_layers()
         # load data stats
         data_config = actor_train_config.data.create(
             actor_train_config.assets_dirs, actor_model_config
@@ -104,10 +102,6 @@ def get_model(model_path, cfg: DictConfig, override_config_kwargs=None):
                 )
         # wrappers
         repack_transforms = transforms.Group()
-        # default_prompt = None
-
-        # 'repo_id', 'asset_id', 'norm_stats', 'repack_transforms', 'data_transforms', 
-        # 'model_transforms', 'use_quantile_norm', 'action_sequence_keys', 'prompt_from_task', 'rlds_data_dir', 'action_space', 'filter_dict_path'
 
         model.setup_wrappers(
             transforms=[
@@ -120,9 +114,6 @@ def get_model(model_path, cfg: DictConfig, override_config_kwargs=None):
                 
                 *data_config.model_transforms.inputs,   
             ],
-            # data_config.model_transforms.inputs
-            # [InjectDefaultPrompt(prompt='Insert the memory stick.'), ResizeImages(height=224, width=224), TokenizePrompt(tokenizer=<openpi_value.models.tokenizer.PaligemmaTokenizer object at 0x7f8f00686c10>, discrete_state_input=True), PadStatesAndActions(model_action_dim=32)]
-
             output_transforms=[
                 *data_config.model_transforms.outputs,
                 transforms.Unnormalize(

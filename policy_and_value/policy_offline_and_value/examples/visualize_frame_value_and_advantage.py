@@ -58,7 +58,6 @@ def load_video_frames(video_path: str) -> tuple[List[np.ndarray], float]:
         return [], 30.0
 
     cap = cv2.VideoCapture(video_path)
-    # fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     
     fps = 30
     

@@ -5,7 +5,6 @@ auto_reset: ${algorithm.auto_reset}
 ignore_terminations: ${algorithm.ignore_terminations}
 max_episode_steps: ${algorithm.max_episode_steps}
 
-# inter_sample: ${algorithm.inter_sample}
 wm_action_interval: ${algorithm.wm_action_interval}
 with_advantage_condition: ${algorithm.with_advantage_condition}
 

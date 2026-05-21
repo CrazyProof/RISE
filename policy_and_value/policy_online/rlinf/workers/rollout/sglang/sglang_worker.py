@@ -142,7 +142,6 @@ class SGLangWorker(Worker):
             if not self._cfg.rollout.validate_weight
             and not getattr(self._cfg.rollout, "validate_weight_first_sync", False)
             else "auto",
-            # disable_overlap_schedule=True,
             dtype=torch_dtype_from_precision(self._cfg.rollout.precision),
             # sglang will only return text/output_ids when skip_tokenizer_init=False/True
             # text is not needed in RL training, so set to True can save time.

@@ -21,7 +21,6 @@ import numpy as np
 import torch
 
 from openpi_value.training import config as _config
-# import openpi_value.training.data_loader as _data
 import openpi_value.training.episode_base_data_loader as _data
 from dataclasses import replace
 import random
@@ -65,7 +64,6 @@ def to_tensor(
 
 def build_datasets(config: _config.TrainConfig, shuffle=True):
     """Build datasets using the unified data loader with PyTorch framework."""
-    # data_loader = _data.create_data_loader(config, framework="pytorch", shuffle=shuffle)
     data_loader = _data.create_dataloader_with_sequential_episode(config, framework="pytorch", shuffle=shuffle)
     return data_loader, data_loader.data_config()
 
@@ -96,7 +94,6 @@ class RoborlEnv(gym.Env):
         self.ignore_terminations = cfg.ignore_terminations
         self.auto_reset = cfg.auto_reset
         
-        # self.inter_sample = cfg.inter_sample
         self.wm_action_interval = cfg.wm_action_interval
 
         # Random number generators
@@ -316,10 +313,6 @@ class RoborlEnv(gym.Env):
             action_indice = action_step // self.wm_action_interval
             step_reward = self.cfg.reward_coef * np.array(pred_result["rm_value"][:, action_indice])
                           
-            # self.current_lerobot_obs.__dict__.keys()
-            # dict_keys(['images', 'image_masks', 'state', 'tokenized_prompt', 'tokenized_prompt_mask', 'token_ar_mask', 'token_loss_mask', 'episode_index', 'frame_index', 'episode_length', 'action_advantage', 'action_advantage_original', 'image_original'])
-            # - 'token_ar_mask', 'token_loss_mask' are None 
-            # self.current_lerobot_obs.action_advantage tensor([ 6,  6,  6,  1, 10,  8,  7,  1])
             self.current_lerobot_obs.images["base_0_rgb"] = pred_result['next_top_pad']
             self.current_lerobot_obs.images["left_wrist_0_rgb"] = pred_result['next_left_pad']
             self.current_lerobot_obs.images["right_wrist_0_rgb"] = pred_result['next_right_pad']

@@ -33,8 +33,6 @@ def preprocess_observation_pytorch(
     This function avoids complex type annotations that can cause torch.compile issues.
     """
 
-    # if not set(image_keys).issubset(observation.images):
-    #     raise ValueError(f"images dict missing keys: expected {image_keys}, got {list(observation.images)}")
     assert image_keys is None, "Deprecated: cannot use image_key anymore"
     
     # assert not (apply_blur_visual_aug and apply_shape_visual_aug), "Cannot apply both custom and official visual augmentations"
@@ -133,31 +131,6 @@ def preprocess_observation_pytorch(
                         align_corners=False,
                     ).permute(0, 2, 3, 1)  # [b, c, h, w] -> [b, h, w, c]
 
-
-            
-            # * No color aug.
-            # if apply_shape_visual_aug:
-            #     # Color augmentations for all cameras
-            #     # Random brightness
-            #     # Use tensor operations instead of .item() for torch.compile compatibility
-            #     brightness_factor = 0.7 + torch.rand(1, device=image.device) * 0.6  # Random factor between 0.7 and 1.3
-            #     image = image * brightness_factor
-
-            #     # Random contrast
-            #     # Use tensor operations instead of .item() for torch.compile compatibility
-            #     contrast_factor = 0.6 + torch.rand(1, device=image.device) * 0.8  # Random factor between 0.6 and 1.4
-            #     mean = image.mean(dim=[1, 2, 3], keepdim=True)
-            #     image = (image - mean) * contrast_factor + mean
-
-            #     # Random saturation (convert to HSV, modify S, convert back)
-            #     # For simplicity, we'll just apply a random scaling to the color channels
-            #     # Use tensor operations instead of .item() for torch.compile compatibility
-            #     saturation_factor = 0.5 + torch.rand(1, device=image.device) * 1.0  # Random factor between 0.5 and 1.5
-            #     gray = image.mean(dim=-1, keepdim=True)
-            #     image = gray + (image - gray) * saturation_factor
-
-
-
             # * add motionblur and gaussian blur
             if apply_blur_visual_aug:
                 
@@ -251,9 +224,7 @@ def preprocess_observation_pytorch(
         
         state_std = torch.tensor(state_std).to(states).reshape(1, -1)  # [1, state_dim]
        
-        # noise_scale = state_std / (10 ** (state_noise_snr / 10))**0.5
         epsilon = 1e-6
-        # noise_scale = state_std / torch.sqrt(10 ** (state_noise_snr / 10))
         noise_scale = state_std / torch.sqrt(torch.tensor(10) ** (state_noise_snr / 10) + epsilon)
         noise_scale = noise_scale.expand(states.shape)  # Now noise_scale has shape [4, 32]
         
@@ -305,7 +276,6 @@ def preprocess_observation_pytorch(
         return SimpleProcessedObservation(
             images=out_images,
             image_masks=out_masks,
-            # state=observation.state,
             state=states,
             tokenized_prompt=observation.tokenized_prompt,
             tokenized_prompt_mask=observation.tokenized_prompt_mask,

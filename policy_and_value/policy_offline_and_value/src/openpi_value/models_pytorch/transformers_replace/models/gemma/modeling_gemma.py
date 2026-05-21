@@ -55,7 +55,6 @@ class GemmaRMSNorm(nn.Module):
         
         # Dense layer for adaptive normalization (if cond_dim is provided)
         if cond_dim is not None:
-            #self.dense = nn.Linear(cond_dim, dim * 3, bias=True, dtype=torch.bfloat16)
             self.dense = nn.Linear(cond_dim, dim * 3, bias=True)
             # Initialize with zeros (matches source implementation)
             nn.init.zeros_(self.dense.weight)
@@ -84,20 +83,12 @@ class GemmaRMSNorm(nn.Module):
         if cond.shape[-1] != self.cond_dim:
             raise ValueError(f"Expected cond dimension {self.cond_dim}, got {cond.shape[-1]}")
         
-        #self.dense.to(dtype=torch.bfloat16).to(dtype=torch.float32)
         modulation = self.dense(cond)
         # Reshape modulation to broadcast properly: [batch, 1, features] for [batch, seq, features]
         if len(x.shape) == 3:  # [batch, seq, features]
             modulation = modulation.unsqueeze(1)
         
         scale, shift, gate = torch.chunk(modulation, 3, dim=-1)
-        
-        # Apply adaptive normalization: use model weight dtype to ensure compatibility
-        # model_dtype = self.dense.weight.dtype  # Use the model's dtype (bfloat16)
-        # scale = scale.to(model_dtype)
-        # shift = shift.to(model_dtype)
-        # gate = gate.to(model_dtype)
-        # normed_inputs = normed_inputs.to(model_dtype)  # Convert normed_inputs to model dtype
         
         normed_inputs = normed_inputs * (1 + scale.to(torch.float32)) + shift.to(torch.float32)
 
@@ -513,7 +504,6 @@ class GemmaModel(GemmaPreTrainedModel):
         # Gemma downcasts the below to float16, causing sqrt(3072)=55.4256 to become 55.5
         # See https://github.com/huggingface/transformers/pull/29402
         normalizer = torch.tensor(self.config.hidden_size**0.5, dtype=hidden_states.dtype)
-        #hidden_states = hidden_states * normalizer
 
         # decoder layers
         all_hidden_states = () if output_hidden_states else None

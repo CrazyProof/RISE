@@ -157,7 +157,6 @@ def create_torch_dataset_naive(
         repo_id = [repo_id]
 
 
-    # for rp in repo_id:
     repo_id = [
         rp for rp in repo_id if 'Put_The_Items_Into_The_Storage_Box_20250929_002_007' not in rp
     ]  # * Remove this problematic dataset
@@ -187,7 +186,6 @@ def create_torch_dataset_naive(
 
             # * tolerance
             tolerance_s = 0.1,
-            # video_backend="pyav",  # smch: Force pyav backend to avoid torchcodec issues, need change in the future
         )
 
     return dataset
@@ -288,7 +286,6 @@ def create_torch_dataset(
             **data_kwargs
         )
 
-    # TODO: we need to fix this. Now only use one dataset's meta for tasks.
     if data_config.prompt_from_task:
         if len(repo_ids) == 1:
             dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(repo_ids[0])
@@ -377,7 +374,6 @@ def get_episodes(repo_id, split):
 
 def transform_dataset(dataset: Dataset, data_config: _config.DataConfig, *, skip_norm_stats: bool = False) -> Dataset:
     """Transform the dataset by applying the data transforms."""
-    # norm_stats = {}
     norm_stats = None
     if data_config.repo_id != "fake" and not skip_norm_stats:
         if data_config.norm_stats is None:
@@ -515,7 +511,6 @@ def create_torch_data_loader(
                 num_replicas=torch.distributed.get_world_size(),
                 rank=torch.distributed.get_rank(),
                 shuffle=shuffle,
-                # drop_last=True,
                 drop_last=config.drop_last,
             )
             local_batch_size = batch_size // torch.distributed.get_world_size()
@@ -607,8 +602,6 @@ class TorchDataLoader:
             worker_init_fn=_worker_init_fn,
             drop_last=drop_last,
             generator=generator,
-            
-            # pin_memory=True, # * A little bit speedup, not obvious. Back to default (False).
         )
 
     @property

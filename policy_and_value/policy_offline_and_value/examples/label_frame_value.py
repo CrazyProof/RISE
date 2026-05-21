@@ -29,8 +29,6 @@ matplotlib.use("Agg")
 all_pred = []
 all_tgt  = []
 
-# TODO: Single frame version
-
 # * Visualize the dataset
 def build_datasets(config: _config.TrainConfig, shuffle: bool = True):
     """Builds the data loader with configurable shuffling."""
@@ -502,9 +500,6 @@ def main(
         
         suboptimal_progress_multiplier=1,
         suboptimal_progress_offset=0,
-        
-        # preceding_skipping_ratio=0,
-        # preceding_skipping_ratio=0.2,   # * Skip preceding 20%.
     )
     # --- Data Loader ---
     # Must use shuffle=False to get contiguous episodes

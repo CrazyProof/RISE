@@ -27,8 +27,6 @@ import cv2
 from PIL import Image
 from collections import defaultdict
 
-# from data.utils.get_actions import parse_h5
-
 from utils import zero_rank_print
 from data.utils.constants import NORM_SET
 from data.utils.utils import intrinsic_transform, gen_crop_config, intrin_crop_transform
@@ -196,8 +194,6 @@ class CustomLeRobotDataset(Dataset):
                         continue
 
                     video_path = os.path.join(video_folder, f"chunk-{episode_chunk:03d}", "{}", f"episode_{episode_index:06d}.mp4")
-                    # import pdb
-                    # pdb.set_trace()
                     info = [
                         video_path,
                         None, # no need for camera_info
@@ -365,7 +361,6 @@ class CustomLeRobotDataset(Dataset):
 
     def get_long_recaption(self, step_captions, task_caption):
         newcap = []
-        # find = []
         for step_caption in step_captions:
             if self.step_recap_map is not None:
                 recap_list = self.step_recap_map.get(step_caption,[])
@@ -422,7 +417,6 @@ class CustomLeRobotDataset(Dataset):
                 ])
                 if action.shape[1] == 16:
                     return None, None, None
-                # print(action.shape)
                 
         except:
             raise ValueError("We currently only support action and state data with the shape of T*C!")

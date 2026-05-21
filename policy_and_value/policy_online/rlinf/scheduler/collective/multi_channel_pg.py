@@ -135,7 +135,6 @@ class MultiChannelProcessGroup:
                 rank=rank,
                 group_name=group_name + f"{self._accel_ccl_backend}_send_0",
                 timeout=timeout,
-                # device_id=torch.device(f"cuda:{torch.cuda.current_device()}"),
                 # Setting device_id is crucial triggers eager creation of NCCL communicators
                 # https://docs.pytorch.org/docs/stable/distributed.html#torch.distributed.init_process_group
                 # If not, communicators will only be created upon the first collective operation
@@ -669,9 +668,6 @@ class MultiChannelProcessGroup:
                             backend_class.size(),
                         )
             elif backend_str == Backend.GLOO:
-                # TODO: remove this check after lazy initialization is supported
-                # if pg_options is not None:
-                #     raise RuntimeError("GLOO options not supported")
                 backend_class = ProcessGroupGloo(
                     backend_prefix_store, group_rank, group_size, timeout=timeout
                 )
@@ -704,10 +700,6 @@ class MultiChannelProcessGroup:
                 )
                 backend_type = ProcessGroup.BackendType.NCCL
             elif backend_str == Backend.UCC and is_ucc_available():
-                # TODO: once UCC plugin is fully deprecated, remove
-                # is_ucc_available() from above elif-condition and raise
-                # RuntimeError if is_ucc_available() returns false.
-
                 backend_class = ProcessGroupUCC(
                     backend_prefix_store, group_rank, group_size, timeout=timeout
                 )
@@ -746,8 +738,6 @@ class MultiChannelProcessGroup:
                 backend_class._set_sequence_number_for_group()
 
             # If the type is a subclass of ProcessGroup then return this process group immediately
-            # TODO: This defaults to the old behavior for PythonProcessGroups which overwrites the
-            # ProcessGroup instance
             if issubclass(type(backend_class), ProcessGroup):
                 pg = backend_class  # type: ignore[assignment]
                 break

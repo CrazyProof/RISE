@@ -38,7 +38,6 @@ class RealEnv:
     """
 
     def __init__(self, init_node, *, reset_position: Optional[List[float]] = None, setup_robots: bool = True):
-        # reset_position = START_ARM_POSE[:6]
         self._reset_position = reset_position[:6] if reset_position else DEFAULT_RESET_POSITION
 
         self.puppet_bot_left = InterbotixManipulatorXS(

@@ -592,8 +592,6 @@ class Trainer:
                 logger.debug(f"Starting step {step + 1}")
                 logs = {}
                 
-                # accelerator.wait_for_everyone()
-
                 with accelerator.accumulate([ self.diffusion_model ]):
 
                     
@@ -804,9 +802,7 @@ class Trainer:
                     self.lr_scheduler.step()
                     self.optimizer.zero_grad()
 
-                    # accelerator.wait_for_everyone()
                 
-
          
                 loss = accelerator.reduce(loss.detach(), reduction='mean')
                 if self.args.train_mode == 'all' or self.args.train_mode == 'action_only' or self.args.train_mode == 'action_full':
@@ -878,8 +874,6 @@ class Trainer:
             memory_statistics = get_memory_statistics()
             logger.info(f"Memory after epoch {epoch + 1}: {json.dumps(memory_statistics, indent=4)}")
 
-            # accelerator.wait_for_everyone()
-            
             logger.info(f"Finished epoch.")
             if accelerator.is_main_process and self.writer is not None:
                 avg_loss = running_loss / len(self.train_dataloader)

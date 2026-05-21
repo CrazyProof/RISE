@@ -312,7 +312,6 @@ class VLLMWorkerProc(WorkerProc):
             # NOTE: if an Exception arises in busy_loop, we send
             # a FAILURE message over the MQ RPC to notify the Executor,
             # which triggers system shutdown.
-            # TODO(rob): handle case where the MQ itself breaks.
 
             if ready_writer is not None:
                 logger.exception("WorkerProc failed to start.")

@@ -113,7 +113,6 @@ def _resize_with_pad_torch_single(
         resized_tensor.unsqueeze(0),
         (pad_left, pad_right, pad_top, pad_bottom),
         mode='constant',
-        # value=0
         value=-1.0 # Assuming float image in [-1, 1]
     ).squeeze(0) # Remove batch dimension
 
@@ -152,10 +151,6 @@ def resize_with_pad_torch(
         The resized images in [..., height, width, channel].
     """
 
-    # if images.shape[-3] == 3:
-    #     # Input is in [..., C, H, W] format, permute
-    #     images = images.permute(*range(images.dim() - 3), -2, -1, -3)  # [..., H, W, C]
-
     if images.shape[-3] == 3:
         images = images.permute(0, 2, 3, 1)  # [B, H, W, C]
 
@@ -178,7 +173,6 @@ def resize_with_pad_torch(
     # Stack the results and reshape back to the original batch dimensions
     resized_batch = torch.stack(resized_tensors)
 
-    # * [8, 224, 224, 3]
     assert out_mode in ['HWC', 'CHW'], "out_mode must be either 'HWC' or 'CHW'"
 
     if out_mode == 'CHW':
@@ -209,7 +203,6 @@ def write_episode_video_rm(
     os.makedirs(output_dir, exist_ok=True)
 
     # add date
-    # current_time = pd.Timestamp.now().strftime("%d_%H%M%S")
     current_time = pd.Timestamp.now().strftime("%m%d_%H%M%S")
 
     out_path = os.path.join(output_dir, f"episode_{episode_id:03d}_{current_time}.mp4")
@@ -217,7 +210,6 @@ def write_episode_video_rm(
     print("!!!!!!Generating video to:", out_path)
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    # fourcc = cv2.VideoWriter_fourcc(*'avc1')
 
     width_px = int(fig_w * dpi)
     height_px = int(fig_h * dpi)
@@ -293,7 +285,6 @@ def write_episode_video_rm(
     video_writer.release()
 
     # Encode with H.264 for size/speed
-    # if os.path.exists(out_path):
     new_out_path = out_path.replace(".mp4", "_new.mp4")
     os.system(f"ffmpeg -y -i {out_path} -c:v libx264 -crf 18 -preset veryfast {new_out_path} > /dev/null 2>&1")
     logging.info(f"=> Episode {episode_id} generated to: {new_out_path}")
@@ -370,8 +361,6 @@ def build_model_only(config_name: str, ckpt_dir: str):
         suboptimal_progress_multiplier=1,
         suboptimal_progress_offset=0,
         
-        # preceding_skipping_ratio=0,
-        # preceding_skipping_ratio=0.2,   # * Skip preceding 20%.
         preceding_skipping_ratio=0.,   # * Skip preceding 20%.
     )
    
@@ -409,9 +398,6 @@ class RewardModel:
         
         
         self.model, self.config = build_model_only(config_name, ckpt_dir)
-        
-        # self.config = self._load_config()
-        # self.model = self._load_model()
         
         self.tokenizer = _tokenizer.PaligemmaTokenizer(self.config.model.max_token_len)
 

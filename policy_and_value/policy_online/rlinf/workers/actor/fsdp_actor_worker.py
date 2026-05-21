@@ -154,9 +154,6 @@ class FSDPActor(FSDPModelManager, Worker):
                     # NOTE:
                     # if transformers version is 4.56.1 or older(not tested),
                     # the following line should be uncommented
-
-                    # elif name.startswith("model."):
-                    #     name = name[6:]
                 state_dict[name] = reduce_tensor(v)
 
             self.send(
@@ -754,10 +751,6 @@ class EmbodiedFSDPActor(FSDPModelManager, Worker):
         g.manual_seed(self.cfg.actor.seed + self._rank)
         shuffle_id = torch.randperm(rollout_size, generator=g)
 
-        # * self.rollout_batch['conditional_advantage'].shape torch.Size([3, 8, 1])
-        # self.rollout_batch['rewards'].shape torch.Size([24, 50])
-        # self.rollout_batch['gt_actions'].shape torch.Size([24, 50, 32])
-
         with torch.no_grad():
             for key, value in self.rollout_batch.items():
                 if key in ["dones", "prev_values", "wm_steps"]:
@@ -833,7 +826,6 @@ class EmbodiedFSDPActor(FSDPModelManager, Worker):
 
                     # * data is from rollout_result_dict in EmbodiedRolloutResult
 
-                    # TODO: the pre-labeled advantage from offline dataset is NOT loaded here.
                     conditional_advantage = data.get("conditional_advantage", None)
                     if conditional_advantage is not None:
                         conditional_advantage = conditional_advantage.squeeze(-1)  # tensor, [8]
@@ -841,15 +833,10 @@ class EmbodiedFSDPActor(FSDPModelManager, Worker):
                             # EMA (β=0.95, strong smoothing)
                             is_expert_step = data.get("is_expert_step", None).squeeze(-1)
                             conditional_advantage = calibrate_advantage_ema(self.ema_quantile, conditional_advantage, is_expert_step.bool())
-                        # conditional_advantage = conditional_advantage[:, -1]  # TODO: NOTE: the final two columns are the same  # * [8]
                         if self.cfg.actor.model.openpi.train_mode == 'RL':
                             conditional_advantage = conditional_advantage * 0 + 1
                     # * If the state is from real-world dataset, the conditional_advantage are pre-labeled from offline data.
                     # * If the state is from online rollout,     the conditional_advantage are computed by world model (as rm_values).
-
-                    # data['rewards'].shape [8, 50]
-                    # data['observation/image_hand_right'].shape [8, 3, 224, 224]
-                    # data['wm_steps'].shape  # torch.Size([8, 50]),   # * all False -> all False -> all True
 
                     compute_values = (
                         True if self.cfg.algorithm.adv_type == "gae" else False
@@ -875,8 +862,6 @@ class EmbodiedFSDPActor(FSDPModelManager, Worker):
                         
                         v_t = output_dict['v_t']   # * go to OpenPi0ForRLActionPrediction, forward func
                         
-                        # v_t.shape torch.Size([8, 50, 32])
-                        # u_t.shape torch.Size([8, 50, 32])
                         # * Indeed we use 50 steps here for IL loss. But we only 
                         
                         il_loss = F.mse_loss(u_t, v_t, reduction="none").mean()

@@ -59,12 +59,8 @@ def create_trained_policy(
 
     # Check if this is a PyTorch model by looking for model.safetensors
     weight_path = os.path.join(checkpoint_dir, "model.safetensors")
-    # weight_path2 = pathlib.Path(checkpoint_dir) / "model.pt"
     weight_path2 = os.path.join(checkpoint_dir, "model.pt")
     
-    # weight_path = weight_path if os.path.exists(weight_path) else str(weight_path2)
-
-    # is_pytorch = os.path.exists(weight_path)
     weight_path = weight_path if os.path.exists(weight_path) else weight_path2
     is_pytorch = os.path.exists(weight_path)
 
@@ -80,7 +76,6 @@ def create_trained_policy(
         # that the policy is using the same normalization stats as the original training process.
         if data_config.asset_id is None:
             raise ValueError("Asset id is required to load norm stats.")
-        # norm_stats = _checkpoints.load_norm_stats(checkpoint_dir / "assets", data_config.asset_id)
              
         try:
             norm_stats = _checkpoints.load_norm_stats(

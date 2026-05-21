@@ -300,9 +300,6 @@ def validate_fsdp_cfg(cfg: DictConfig, resume_dir: Optional[str] = None) -> Dict
             "enable_gradient_accumulation", False
         )
 
-        # if resume_dir is not None:
-        #     cfg.fsdp_config.use_orig_params = True
-
         assert cfg.fsdp_config.backward_prefetch in [
             None,
             "pre",
@@ -583,7 +580,6 @@ def validate_megatron_cfg(cfg: DictConfig) -> DictConfig:
             "lr_wsd_decay_style", "exponential"
         )
 
-        # TODO fix this
         cfg.megatron.train_iters = 100000
         # lr_decay_iters: number of iterations to decay learning rate over, defaults to train_iters
         cfg.lr_sched.lr_decay_iters = cfg.lr_sched.get("lr_decay_iters", None)
@@ -615,7 +611,6 @@ def validate_megatron_cfg(cfg: DictConfig) -> DictConfig:
             assert cfg.lr_sched.start_weight_decay is not None
             assert cfg.lr_sched.end_weight_decay is not None
 
-        # TODO. Following args are needed for AUTO mode now, but will be removed in the future.
         cfg.megatron.transformer_impl = getattr(
             cfg.megatron, "transformer_impl", "transformer_engine"
         )
@@ -784,7 +779,6 @@ def validate_cfg(cfg: DictConfig) -> DictConfig:
     if cfg.actor.training_backend == "megatron":
         cfg.actor = validate_megatron_cfg(cfg.actor)
         cfg.actor = validate_model_cfg_by_hf_config(cfg.actor, cfg.rollout.model_dir)
-        # TODO. Need actually pad padded_vocab_size.
         assert (
             cfg.actor.model.padded_vocab_size
             % cfg.actor.model.tensor_model_parallel_size
@@ -850,7 +844,6 @@ def build_transformer_config(cfg) -> "TransformerConfig":
 
     activation = cfg.get("activation", "gelu")
     gated_linear_unit = activation.endswith("glu")
-    # TODO: need to check which activation functions are supported in mcore
     activation_func = activation_to_func(
         activation, openai_gelu=cfg.get("openai_gelu", False)
     )
@@ -922,7 +915,6 @@ def build_transformer_config(cfg) -> "TransformerConfig":
 
     apply_rope_fusion = cfg.get("apply_rope_fusion", False)
 
-    # TODO: need to check if recompute APIs are matching up properly
     recompute_granularity = cfg.get("recompute_granularity", None)
     recompute_method = cfg.get("recompute_method", None)
     recompute_num_layers = cfg.get("recompute_num_layers", None)
@@ -1020,7 +1012,6 @@ def _build_model_parallel_config(cfg: DictConfig) -> "ModelParallelConfig":
     """
     from megatron.core.model_parallel_config import ModelParallelConfig
     from megatron.training.global_vars import get_timers
-    # cfg = OmegaConf.to_container(cfg, resolve=True)
 
     # dtype used in p2p communication
     if cfg.get("precision", None) is None:

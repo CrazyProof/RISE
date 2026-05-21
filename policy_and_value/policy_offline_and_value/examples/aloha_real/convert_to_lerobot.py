@@ -122,7 +122,6 @@ def lazy_load_hdf5_dataset(
         
         
 
-    # epi_len = state_qpos.shape[0]
     episode = {
         "observation.state": state_qpos.reshape((epi_len, -1)),
         "observation.images.top_head": None,
@@ -201,8 +200,6 @@ def encode_video_frames(
 
         # Loop through input frames and encode them
         for input_image in images:
-            # input_image = Image.open(input_data).convert("RGB")
-            # input_frame = av.VideoFrame.from_image(input_image)
             input_frame = av.VideoFrame.from_ndarray(input_image, format="rgb24", channel_last=True)
             packet = output_stream.encode(input_frame)
             if packet:
@@ -267,13 +264,9 @@ def produce_episode(
             existing_video_path = data_dir / "video" / video_dir_name / f"{episode_name}.mp4"
             
             if existing_video_path.exists():
-                # copy_start_time = time.time()
                 video_dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(existing_video_path, video_dst)
-                # copy_time = time.time() - copy_start_time
-                # copy_count += 1
             else:
-                # encode_start_time = time.time()
                 images = np.array(episode[camera_key])
                 encode_video_frames(images, dst=video_dst, fps=30, overwrite=True)
         
@@ -284,7 +277,6 @@ def produce_episode(
         error_time = time.time() - episode_start_time
         print(f"  ❌ processing episode {log_dir.name} failed: {e}, Ignoring this episode.")
         print(f"  ⏱️  Error timestamp: {error_time:.2f}s")
-        # raise
 
 def main(
     data_dir: Path | str,
@@ -307,7 +299,6 @@ def main(
     
     if save_repoid is None:
         repoid = data_dir.name.split('_')
-        # task = repoid[0]
         save_repoid = '_'.join(repoid[1: -1]) + '_lerobot'
         print(f"save_repoid will be set according to repo_ids: {save_repoid}")
 
@@ -339,7 +330,6 @@ def main(
         except Exception as e:
             print(f"  ❌ Invalid {file}, error: {e}, Ignoring this file.")
 
-    # output_path = Path(save_dir) / task / save_repoid
     output_path = Path(save_dir) / save_repoid
 
 

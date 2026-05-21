@@ -47,8 +47,6 @@ def free_memory() -> None:
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()
 
-    # TODO(aryan): handle non-cuda devices
-
 
 def make_contiguous(x: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
     if isinstance(x, torch.Tensor):

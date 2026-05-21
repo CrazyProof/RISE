@@ -191,9 +191,6 @@ def prepare_latents(
             h = vae._encode(image_or_video)
         _, _, num_frames, height, width = h.shape
 
-        # TODO(aryan): This is very stupid that we might possibly be storing the latents_mean and latents_std in every file
-        # if precomputation is enabled. We should probably have a single file where re-usable properties like this are stored
-        # so as to reduce the disk memory requirements of the precomputed files.
         return {
             "latents": h,
             "num_frames": num_frames,
@@ -292,7 +289,6 @@ def gen_noise_from_condition_frame_latent(
     mem_size = condition_frame_latent.shape[2]
     num_channels_latents = condition_frame_latent.shape[1] # 128
     batch_size = condition_frame_latent.size(0)   # bv
-    # latent_num_frames = (num_frames - 1) // vae_temporal_compression_ratio + 1
 
     shape = (batch_size, num_channels_latents, latent_num_frames, latent_height, latent_width)
     mask_shape = (batch_size, 1, latent_num_frames, latent_height, latent_width)
@@ -336,7 +332,6 @@ def apply_color_jitter_to_video(tensor, jitter=None):
     B, C, T, H, W = tensor.shape
     assert C == 3
     if jitter is None:
-        # jitter = transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1)
         jitter = transforms.ColorJitter(brightness=0.3, contrast=0.4, saturation=0.5, hue=0.1)
     tensor = (tensor + 1.0) / 2.0
     tensor = rearrange(tensor, 'b c t h w -> b t c h w')

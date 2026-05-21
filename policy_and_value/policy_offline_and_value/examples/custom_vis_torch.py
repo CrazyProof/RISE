@@ -23,8 +23,6 @@ all_pred = []
 all_tgt  = []
 
 
-# TODO: Viusalize one sample case. (Two frames.)
-
 # * Visualize the dataset
 def build_datasets(config: _config.TrainConfig, shuffle: bool = True):
     """Builds the data loader with configurable shuffling."""
@@ -65,13 +63,8 @@ def write_episode_video(
     adv_list = []
 
     ADVANTAGE_SCALAR = 5.   # * Conveyor
-    # ADVANTAGE_SCALAR = 10.  # * Backpack and Box.
 
-    # MODE in ["v1", "v2"]
-    # MODE = "v2"  
     MODE = "v1"  # * Let's try v1
-    
-    # MODE = "v1"  # * Let's roll back to v1 --> v1 seems flattener than v2
     
     if MODE == "v1":
         # * mean(t+1,...,t+50) - v(t)
@@ -98,8 +91,6 @@ def write_episode_video(
 
             # 4. Clamp to [-1, 1]
             adv = max(-1.0, min(adv_raw, 1.0))
-            # adv = min(adv_raw, 1.0)
-            
             
             adv_list.append(adv)
 
@@ -145,7 +136,6 @@ def write_episode_video(
     
     DUMP = False
     if DUMP:
-        # * TODO: dump adv_list into local file
         adv_dump_dir = os.path.join(output_dir, "adv_dumps")
         os.makedirs(adv_dump_dir, exist_ok=True)
         adv_dump_path = os.path.join(adv_dump_dir, f"episode_{episode_id:03d}_adv.npy")
@@ -251,9 +241,6 @@ def build_model_only(config_name: str, ckpt_dir: str):
     
     model.sample_values = torch.compile(model.sample_values, mode="reduce-overhead")
     
-    # except:
-    #     pass  # torch.compile may fail in some environments
-    
     model.eval()  # Set model to evaluation mode
     model_path = os.path.join(checkpoint_dir, "model.safetensors")
     logging.info(f"Loading weights from: {model_path}")
@@ -292,7 +279,6 @@ def build_model_only(config_name: str, ckpt_dir: str):
 def build_model_and_dataset(config_name: str, checkpoint_dir:str, device=None):
     """Loads the training configuration based on the provided name."""
     config = _config.get_config(config_name)
-    # checkpoint_dir = download.maybe_download(ckpt_dir)
 
 
     # =============== Load Model =============================
@@ -302,13 +288,9 @@ def build_model_and_dataset(config_name: str, checkpoint_dir:str, device=None):
                                         })
     
     config = dataclasses.replace(config, model=new_model)
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = PI0Pytorch(new_model).to(device)
     
     model.sample_values = torch.compile(model.sample_values, mode="reduce-overhead")
-    
-    # except:
-    #     pass  # torch.compile may fail in some environments
     
     model.eval()  # Set model to evaluation mode
     model_path = os.path.join(checkpoint_dir, "model.safetensors")
@@ -335,7 +317,6 @@ def build_model_and_dataset(config_name: str, checkpoint_dir:str, device=None):
         batch_size=1, 
         is_train=False,
         num_workers=8,
-        # split='val_tasks',
         split='all',
         
         use_suboptimal_progress=False,
@@ -368,76 +349,12 @@ def main(
     global all_tgt
     
 
-    # # --- Config and Checkpoint Setup ---
-    # config = _config.get_config(config_name)
     checkpoint_dir = download.maybe_download(ckpt_dir)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     
     model, data_iter = build_model_and_dataset(config_name, checkpoint_dir, device=device)
-
-
-    # # =============== Load Model =============================
-    # new_model = config.model.__class__(**{**config.model.__dict__,
-    #                                         'p_mask_ego_state': 1,
-    #                                         'value_TD_learning': False,
-    #                                     })
-    
-    # config = dataclasses.replace(config, model=new_model)
-    # model = PI0Pytorch(new_model).to(device)
-    
-    # model.sample_values = torch.compile(model.sample_values, mode="reduce-overhead")
-    
-    # # except:
-    # #     pass  # torch.compile may fail in some environments
-    
-    # model.eval()  # Set model to evaluation mode
-    # model_path = os.path.join(checkpoint_dir, "model.safetensors")
-    # logging.info(f"Loading weights from: {model_path}")
-    # try:
-    #     safetensors.torch.load_model(model, model_path, strict=False)
-    # except FileNotFoundError:
-    #     logging.error(f"Could not find model weights at {model_path}")
-    #     # Fallback to config path if specified
-    #     if config.pytorch_weight_path:
-    #         model_path = os.path.join(config.pytorch_weight_path, "model.safetensors")
-    #         logging.info(f"Trying fallback path: {model_path}")
-    #         safetensors.torch.load_model(model, model_path, strict=False)
-    #     else:
-    #         raise
-
-    # logging.info(f"Loaded PyTorch weights successfully.")
-    # # =============== Load Model finished ======================
-    
-    # # --- Modify Config for Inference ---
-    # assert split in ['all', 'val_tasks', 'heldout_tasks']
-    # config = dataclasses.replace(
-    #     config,
-    #     batch_size=1, 
-    #     is_train=False,
-    #     num_workers=8,
-    #     split=split,
-        
-    #     use_suboptimal_progress=False,
-        
-    #     suboptimal_progress_multiplier=1,
-    #     suboptimal_progress_offset=0,
-        
-    #     # preceding_skipping_ratio=0,
-    #     # preceding_skipping_ratio=0.2,   # * Skip preceding 20%.
-    #     preceding_skipping_ratio=0.,   # * Skip preceding 20%.
-    # )
-    
-    #     config = dataclasses.replace(config, 
-                                     
-    #                                  with_episode_start=True,  # * Always use start frame as first frame in a tuple
-    
-
-    # # --- Data Loader ---
-    # # Must use shuffle=False to get contiguous episodes
-    # loader, _ = build_datasets(config, shuffle=False)
-    # data_iter = iter(loader)
 
 
     # --- Helper for Image Processing ---

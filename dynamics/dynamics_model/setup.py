@@ -4,9 +4,6 @@ from pathlib import Path
 base_dir = Path(__file__).parent
 inner_dir = base_dir / "dynamics_model"
 
-# readme_file = inner_dir / "README.md"
-# long_description = readme_file.read_text(encoding="utf-8") if readme_file.exists() else ""
-
 requirements_file = inner_dir / "requirements.txt"
 requirements = []
 if requirements_file.exists():
@@ -20,8 +17,6 @@ setup(
     name="dynamics-model",
     version="0.1.0",
     description="Video prediction model for robotic dynamics",
-    # long_description=long_description,
-    # long_description_content_type="text/markdown",
     author="RISE Team",
     python_requires=">=3.8",
     packages=find_packages(exclude=["tests", "tests.*"]), 

@@ -249,7 +249,6 @@ class StreamActionBuffer:
             return np.asarray(self.cur_chunk[0], dtype=float)
 
     def delta_eef_smooth_action_at_index(self, idx_from_left: int) -> np.ndarray | None:
-        # TODO: implement this
         pass
 
 

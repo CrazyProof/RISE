@@ -9,8 +9,6 @@ import numpy as np
 from openpi_client import image_tools
 import torch
 
-# from openpi_value.shared.image_tools import batch_resize, resize_with_pad
-
 from openpi_value.models import tokenizer as _tokenizer
 from openpi_value.shared import array_typing as at
 from openpi_value.shared import normalize as _normalize
@@ -19,7 +17,6 @@ import numpy as np
 from PIL import Image
 from typing import Union
 import copy
-# import torch
 import json
 
 DataDict: TypeAlias = at.PyTree
@@ -246,27 +243,12 @@ class Normalize(DataTransformFn):
         if self.norm_stats is None:
             return data
 
-        # if 'inferred_action' in data:
-
-        #     # before_norm = data['inferred_action'].clone()
-
-        #     data['inferred_action'] = data['inferred_action'].reshape(data['actions'].shape[0], -1)
-
-        #     self.norm_stats['inferred_action'] = \
-        #         self.norm_stats['actions']
-
         out = apply_tree(
             data,
             self.norm_stats,
             self._normalize_quantile if self.use_quantiles else self._normalize,
             strict=self.strict,
         )
-
-        # if 'inferred_action' in data:
-        #     out['inferred_action'] = out['inferred_action'].reshape(-1)
-        #     self.norm_stats.pop('inferred_action')
-
-        #     # after_norm = data['inferred_action']
 
         return out
 
@@ -393,7 +375,6 @@ class TokenizePrompt(DataTransformFn):
 
     def __call__(self, data: DataDict) -> DataDict:
         if (prompt := data.pop("prompt", None)) is None:
-        # if (prompt := data.get("prompt", None)) is None:
             raise ValueError("Prompt is required")
 
         if self.discrete_state_input:

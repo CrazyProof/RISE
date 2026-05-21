@@ -46,9 +46,7 @@ if __name__ == "__main__":
         temp_pt = torch.load(os.path.join(temp_dir, "temp_torch_save.pt"),weights_only=False)
 
         model_state_dict = temp_pt['fsdp_checkpoint']["model"]
-        # optim_dict = temp_pt['fsdp_checkpoint']["optim"]
         torch.save(model_state_dict, args.output_path + "model.pt")
-        # torch.save(optim_dict, args.output_path + "optim.pt")
 
     print(
         f"Converted DCP checkpoint from {args.dcp_path} to state_dict at {args.output_path}"

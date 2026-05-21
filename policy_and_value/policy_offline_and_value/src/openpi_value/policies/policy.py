@@ -81,14 +81,12 @@ class Policy(BasePolicy):
 
             # JAX model setup
             self._sample_actions = nnx_utils.module_jit(model.sample_actions)
-            # self._rng = rng or jax.random.key(0)   # * TODO: Customize RNG seeding
             self._rng = rng or jax.random.key(seed)
 
     @override
     def infer(self, obs: dict, *, noise: np.ndarray | None = None) -> dict:  # type: ignore[misc]
         # Make a copy since transformations may modify the inputs in place.
         
-        # cfg_scale = self._model.cfg_scale
         cfg_scale = self.cfg_scale
         
         if 'obs' in obs:

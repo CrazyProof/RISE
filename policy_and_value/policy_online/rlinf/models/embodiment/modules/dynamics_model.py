@@ -222,8 +222,6 @@ class DynamicsModel:
             obs = self.load_images(image_root, size=(256, 192))
         
 
-        # obs.shape -> (24, 3, 4, 192, 256)
-        # act_tokens.shape -> (8, 25, 30)
         bv, c, t, h, w = obs.shape
 
         if act_tokens is None:
@@ -259,7 +257,6 @@ class DynamicsModel:
             act_tokens=act_tokens,
         )[0]
 
-        # preds[0].shape -> (24 [8x3], 3, 29, 192, 256)
         
         
         # saving predicted results
@@ -271,7 +268,6 @@ class DynamicsModel:
                 video = preds['video'].data.cpu()
                 video = rearrange(video, '(b v) c t h w -> b c t h (v w)', v=3)
                 current_time = pd.Timestamp.now().strftime("%d_%H%M%S")
-                # save_path = os.path.join(save_path, f"inference_{current_time}")
                 for i in range(video.shape[0]):
                     save_video(
                         video[i],

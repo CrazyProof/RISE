@@ -827,7 +827,6 @@ class Trainer:
             logger.info(f"Memory after epoch {epoch + 1}: {json.dumps(memory_statistics, indent=4)}")
 
             accelerator.wait_for_everyone()
-            # time.sleep(0.003)
             logger.info(f"Finished epoch.")
             if accelerator.is_main_process and self.writer is not None:
                 avg_loss = running_loss / len(self.train_dataloader)

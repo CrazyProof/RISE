@@ -92,7 +92,6 @@ class fp8Tensor:
         self.scale_inv = scale_inv
 
     def to_bf16(self) -> torch.Tensor:
-        # return weight_dequant(self.tensor, self.scale_inv)
         return per_block_cast_to_bf16(self.tensor, self.scale_inv)
 
     @staticmethod
@@ -103,7 +102,6 @@ class fp8Tensor:
     def group(
         tensors: list["fp8Tensor"], fc1orfc2: Literal["fc1", "fc2"]
     ) -> "fp8Tensor":
-        # TODO:
         raise NotImplementedError()
 
     @staticmethod

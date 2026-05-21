@@ -78,7 +78,7 @@ class SpatialLearnedEmbeddings(nn.Module):
 
         self.kernel = nn.Parameter(
             torch.randn(channel, height, width, num_features)
-        )  # TODO: In SeRL, this is lecun_normal initialization
+        )
 
     def forward(self, features):
         """

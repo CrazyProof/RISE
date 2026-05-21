@@ -201,7 +201,6 @@ class LeRobotDataset:
         self.tolerance_s = tolerance_s
 
         self.meta = LeRobotDatasetMetadata(repo_id, self.root)
-        # self.episodes = episodes if episodes is not None else list(range(self.meta.total_episodes))
         if episodes is None:
             episodes = list(range(self.meta.total_episodes))
         def _normalize_and_validate_episode(i: int):

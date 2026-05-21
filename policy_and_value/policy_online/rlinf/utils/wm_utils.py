@@ -162,7 +162,6 @@ def process_observations_dual_arm(forward_inputs: dict, target_size: tuple = (19
 def process_actions(actions: torch.Tensor, 
                     target_length: int = 25, 
                     feature_dim: int = 30, 
-                    # inter_sample: bool=False
                     action_interval: int=1,
                     min_val: list=[],
                     max_val: list=[],

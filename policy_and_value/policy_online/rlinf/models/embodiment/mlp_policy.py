@@ -28,7 +28,6 @@ class MLPPolicy(nn.Module):
         super().__init__()
         self.obs_dim = obs_dim
         self.action_dim = action_dim
-        # self.hidden_dim = hidden_dim
         self.num_action_chunks = num_action_chunks
 
         self.value_head = (

@@ -97,8 +97,6 @@ class CustomAgilexInputs(transforms.DataTransformFn):
                 raise ValueError(f"Camera {camera} not found in data")
 
         # Create image mask based on available cameras
-        # image_mask = {self.required_rename_map[camera]: np.True_ for camera in self.EXPECTED_CAMERAS}
-
 
         # filter unnormal state / action value, set to 0
         state = np.where(state > np.pi, 0, state)

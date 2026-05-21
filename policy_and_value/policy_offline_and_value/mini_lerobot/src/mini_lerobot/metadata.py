@@ -349,8 +349,6 @@ class LeRobotDatasetMetadata:
 if __name__ == "__main__":
     from pathlib import Path
     root = Path("autobio-bench/insert-blender-2")
-    # meta = LeRobotDatasetMetadata.load(root)
-    # from pprint import pprint
     
     features ={
         "state": {

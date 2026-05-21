@@ -56,7 +56,6 @@ def write_episode_video(
     out_path = os.path.join(output_dir, f"episode_{episode_id:03d}.mp4")
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    # fourcc = cv2.VideoWriter_fourcc(*'h264')
 
     width_px = int(fig_w * dpi)
     height_px = int(fig_h * dpi)

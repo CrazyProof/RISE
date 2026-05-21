@@ -188,7 +188,7 @@ actor:
 
       offline_rl: True
 
-      rollout_ema_decay: 0.995 # * TODO: try 0.99, 0.995, 0.999
+      rollout_ema_decay: 0.995
 
       add_dynamics_model: True
       

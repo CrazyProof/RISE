@@ -17,11 +17,9 @@ import orbax.checkpoint as ocp
 import safetensors
 import torch
 
-# from openpi_value.models_pytorch import pi0_pytorch
 from openpi_value.shared import image_tools
 import openpi_value.shared.array_typing as at
 from typing import Callable, Optional, Union
-# import openpi_value.policies.apolicy as aloha_policy
 import warnings
 
 logger = logging.getLogger("openpi")
@@ -216,7 +214,6 @@ class Observation(Generic[ArrayT]):
         for key in image_keys:
             self.images.pop(key, None)
             self.image_masks.pop(key, None)
-        # return self
 
 # Defines the format of the actions. This field is included as "actions" inside the dictionary
 # produced by the data transforms.

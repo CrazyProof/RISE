@@ -394,42 +394,6 @@ def train_loop(config: _config.TrainConfig):
     # Pass the original batch size to data loader - it will handle DDP splitting internally
     loader, data_config = build_datasets(config)
 
-    # Log sample images to wandb on first batch
-    # if is_main and config.wandb_enabled and not resuming:
-    #     # Create a separate data loader for sample batch to avoid consuming the main loader
-    #     sample_data_loader = _data.create_data_loader(
-    #                                 config, 
-    #                                 framework="pytorch", 
-    #                                 shuffle=False,
-    #                                 skip_norm_stats=config.skip_norm_stats,
-    #                         )
-    #     sample_batch = next(iter(sample_data_loader))
-    #     # Convert observation and actions to torch tensors
-    #     observation, actions = sample_batch
-    #     sample_batch = observation.to_dict()
-    #     sample_batch["actions"] = actions
-
-    #     # Create sample images for wandb
-    #     images_to_log = []
-    #     # Get batch size from the first image tensor
-    #     batch_size = next(iter(sample_batch["image"].values())).shape[0]
-    #     for i in range(min(5, batch_size)):
-    #         # Concatenate all camera views horizontally for this batch item
-    #         # Convert from NCHW to NHWC format for wandb
-    #         img_concatenated = torch.cat([img[i].permute(1, 2, 0) for img in sample_batch["image"].values()], axis=1)
-    #         img_concatenated = img_concatenated.cpu().numpy()
-    #         images_to_log.append(wandb.Image(img_concatenated))
-
-    #     wandb.log({"camera_views": images_to_log}, step=0)
-
-    #     # Clear sample batch from memory aggressively
-    #     del sample_batch, observation, actions, images_to_log, img_concatenated
-    #     del sample_data_loader  # Also delete the sample data loader
-    #     gc.collect()
-    #     if torch.cuda.is_available():
-    #         torch.cuda.empty_cache()
-    #     logging.info("Cleared sample batch and data loader from memory")
-
     # Build model
 
     if isinstance(config.model, openpi_value.models.pi0_config.Pi0Config) or \
@@ -633,12 +597,6 @@ def train_loop(config: _config.TrainConfig):
                 model_to_update = model.module if isinstance(model, torch.nn.parallel.DistributedDataParallel) else model
                 if hasattr(model_to_update, 'update_target_network') and model_to_update.TD_learning:
                     model_to_update.update_target_network()
-
-            # # Clear gradients more aggressively
-            # for param in model.parameters():
-            #     if param.grad is not None:
-            #         param.grad.detach_()
-            #         param.grad = None
 
             # Collect stats
             if is_main:

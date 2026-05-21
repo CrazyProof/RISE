@@ -124,8 +124,6 @@ def load_mcap_dataset(
         "epi_len": epi_len
     }
     return episode
-    # return state_images_cam_high, state_images_cam_left_wrist, state_images_cam_right_wrist, state_qpos_puppet, state_qpos_master
-
 
 def load_mcap_dataset2(
     episode_path: str | Path,
@@ -172,8 +170,6 @@ def load_mcap_dataset2(
     puppet_qpos_right = puppet_qpos_right[np.linspace(0, puppet_qpos_right.shape[0]-1, max_len, dtype=np.int32)]
     master_qpos_left = master_qpos_left[np.linspace(0, master_qpos_left.shape[0]-1, max_len, dtype=np.int32)]
     master_qpos_right = master_qpos_right[np.linspace(0, master_qpos_right.shape[0]-1, max_len, dtype=np.int32)]
-
-    # return state_images_cam_high, state_images_cam_left_wrist, state_images_cam_right_wrist, puppet_qpos_left, puppet_qpos_right, master_qpos_left, master_qpos_right
 
     state_qpos = np.concatenate([puppet_qpos_left, puppet_qpos_right], axis=-1)
     state_qpos_master = np.concatenate([master_qpos_left, master_qpos_right], axis=-1)

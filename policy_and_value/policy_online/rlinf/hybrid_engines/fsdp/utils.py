@@ -366,7 +366,6 @@ def get_lr_scheduler(
             optimizer=optimizer,
             num_warmup_steps=num_warmup_steps,
             num_training_steps=decay_steps,
-            # min_lr_ratio=min_lr_ratio,  # * version compatibility issue.
             num_cycles=num_cycles,
         )
     else:

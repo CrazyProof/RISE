@@ -78,7 +78,6 @@ def get_1d_sincos_pos_embed_from_grid(pos: torch.Tensor, embed_dim: int) -> torc
         # Assuming input is convertible (e.g., numpy array or list)
         pos = torch.as_tensor(pos, dtype=torch.float32).flatten()
         
-    # M = pos.shape[0]  # Number of positions
     D_half = embed_dim // 2 # D/2
     
     # 2. Calculate omega (frequencies)
@@ -98,7 +97,6 @@ def get_1d_sincos_pos_embed_from_grid(pos: torch.Tensor, embed_dim: int) -> torc
     # 3. Outer product (M, D/2)
     # The einsum "m,d->md" is equivalent to multiplying (M, 1) by (1, D/2)
     # which uses broadcasting, or using torch.einsum directly.
-    # out = torch.einsum("m,d->md", pos, omega)
     
     # Using broadcasting for better performance/readability in PyTorch
     # pos shape: (M, 1), omega shape: (1, D/2) -> out shape: (M, D/2)
@@ -205,7 +203,6 @@ class PI0Pytorch(nn.Module):
         # * TD args
         # * only in training mode.
         self.p_with_progress_loss = getattr(config, "p_with_progress_loss", 1.)
-        # self.p_with_progress_loss = p_with_progress_loss and self.with_value_head
 
         TD_learning = getattr(config, "value_TD_learning", False)     # * apply TD learning for negative samples.
         self.TD_learning = TD_learning and self.with_value_head
@@ -326,8 +323,6 @@ class PI0Pytorch(nn.Module):
         att_2d_masks_4d = att_2d_masks[:, None, :, :]
         return torch.where(att_2d_masks_4d, 0.0, -2.3819763e38)
 
-
-    # * TODO: random base image masking for value learning.
     def _preprocess_observation(self, observation, *, train=True, return_full_obs=False):
         """Helper method to preprocess observation."""
         observation = _preprocessing.preprocess_observation_pytorch(observation, 
@@ -718,7 +713,6 @@ class PI0Pytorch(nn.Module):
                        ) -> Tensor:
         """Do a full inference forward and compute the action (batch_size x num_steps x num_motors)"""
 
-        # TODO: batch: first half is conditional, second half is unconditional
         bsize = observation.state.shape[0]
         # * for inference, bsize by default is 1.
 

@@ -53,10 +53,6 @@ class SequentialEpisodeSampler(Sampler):
         self.seed = seed
         self.rng = random.Random(seed)
         
-        # Get all unique episode indices in the dataset
-        # self.episode_indices = self._get_unique_episode_indices()
-        # self.num_episodes = len(self.episode_indices)
-        
         self.episode_to_frames: Dict[int, List[int]] = {}
         # 1. Handle Multi/Concat Datasets
         if hasattr(self.dataset, '_datasets'):
@@ -89,13 +85,6 @@ class SequentialEpisodeSampler(Sampler):
             # Just verify length > 0
             self.episode_to_frames = {k: v for k, v in sub_mapping.items() if len(v) > 0}
         
-        
-        # Create a mapping from episode index to list of frame indices in that episode
-        # self.episode_to_frames = self._create_episode_to_frames_mapping()
-        
-        # Filter out any episodes that don't have frames
-        # self.episode_to_frames = {k: v for k, v in self.episode_to_frames.items() if len(v) > 0}
-        # self.episode_indices = [ep_idx for ep_idx in self.episode_indices if ep_idx in self.episode_to_frames]
         
         self.episode_indices = sorted(list(self.episode_to_frames.keys()))
         self.num_episodes = len(self.episode_indices)
@@ -133,8 +122,6 @@ class SequentialEpisodeSampler(Sampler):
         mapping = {}
         
         has_skipping = (
-            # hasattr(dataset, 'preceding_skipping_ratio') and 
-            # dataset.preceding_skipping_ratio > 0. and 
             hasattr(dataset, 'index_map') and 
             dataset.index_map is not None
         )
@@ -193,14 +180,6 @@ class SequentialEpisodeSampler(Sampler):
                 # 5. Advance the virtual counter
                 virtual_idx_counter += valid_len
         
-        # # Optimized path for LeRobot/Custom datasets
-        # if hasattr(dataset, 'episode_data_index') and hasattr(dataset, 'ep_idx_to_arr_idx'):
-        #     for ep_idx, arr_idx in dataset.ep_idx_to_arr_idx.items():
-        #         start = dataset.episode_data_index['from'][arr_idx].item()
-        #         end = dataset.episode_data_index['to'][arr_idx].item()
-        #         mapping[ep_idx] = list(range(start, end))
-                
-        # Fallback path (Safety net)
         else:
             # Only use this if absolute necessary, it is slow
             # You might want to skip this or implement specific logic for your other dataset types
@@ -208,33 +187,6 @@ class SequentialEpisodeSampler(Sampler):
             raise NotImplementedError("Dataset type not supported in multi-dataset extraction.")
             
         return mapping
-
-
-
-    # def _create_episode_to_frames_mapping(self) -> Dict[int, List[int]]:
-    #     """Create a mapping from episode index to list of frame indices in that episode"""
-    #     episode_to_frames = {}
-        
-    #     if hasattr(self.dataset, 'episode_data_index'):
-    #         # For CustomLeRobotDataset which has episode_data_index
-    #         for ep_idx in self.episode_indices:
-    #             if ep_idx in self.dataset.ep_idx_to_arr_idx:
-    #                 arr_idx = self.dataset.ep_idx_to_arr_idx[ep_idx]
-    #                 start = self.dataset.episode_data_index['from'][arr_idx].item()
-    #                 end = self.dataset.episode_data_index['to'][arr_idx].item()
-    #                 episode_to_frames[ep_idx] = list(range(start, end))
-    #     else:
-    #         # Fallback for other dataset types
-    #         for i in range(len(self.dataset)):
-    #             item = self.dataset[i]
-    #             ep_idx = item['episode_index'].item()
-    #             if ep_idx not in episode_to_frames:
-    #                 episode_to_frames[ep_idx] = []
-    #             episode_to_frames[ep_idx].append(i)
-        
-    #     return episode_to_frames
-
-
 
     def reset(self, reset_episode_state: Optional[List[Tuple[int, int]]] = None, element_indices: Optional[List[int]] = None) -> None:
         """
@@ -382,10 +334,6 @@ class SequentialEpisodeDataLoader:
             pin_memory=pin_memory,
             collate_fn=self._collate_fn,
             worker_init_fn=self._worker_init_fn,
-            
-            
-            # ! Experimental, seems to speed up data in 2-gpus scenario.
-            # prefetch_factor=4,
         )
         
         # Set up sharding for JAX if needed
