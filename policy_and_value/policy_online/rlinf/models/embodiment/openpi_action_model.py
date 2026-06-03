@@ -33,9 +33,7 @@ from rlinf.models.embodiment.modules.dynamics_model import DynamicsModel
 from rlinf.models.embodiment.modules.reward_model import RewardModel, resize_with_pad_torch, process_view_torch_rm, write_episode_video_rm
 from rlinf.utils.wm_utils import process_observations_dual_arm, process_actions, concat_obs_and_original
 from einops import rearrange
-from openpi_client import image_tools
 
-import torch.distributed as dist
 from dataclasses import dataclass, replace
 from collections import deque
 import torch.nn.functional as F
@@ -1240,8 +1238,6 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
             log_prob = torch.where(mask, torch.zeros_like(log_prob), log_prob)
         return log_prob
 
-    def preprocess_for_train(self, data):
-        return data
 
     def get_log_prob_value(
         self,

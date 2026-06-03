@@ -12,24 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import os
 
 import torch
 from omegaconf import DictConfig
-from transformers import (
-    AutoConfig,
-    AutoImageProcessor,
-    AutoProcessor,
-    AutoTokenizer,
-)
-
-from rlinf.config import torch_dtype_from_precision
 
 
 def get_model(model_path, cfg: DictConfig, override_config_kwargs=None):
-    torch_dtype = torch_dtype_from_precision(cfg.precision)
-    
     if cfg.model_name == "openpi":
 
         import openpi_value.shared.download as download
