@@ -12,17 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import os
 
 import torch
 from omegaconf import DictConfig
-from transformers import (
-    AutoConfig,
-    AutoImageProcessor,
-    AutoProcessor,
-    AutoTokenizer,
-)
 
 
 def get_model(model_path, cfg: DictConfig, override_config_kwargs=None):

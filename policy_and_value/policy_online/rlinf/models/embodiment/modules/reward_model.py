@@ -11,21 +11,17 @@ import logging
 import torch
 import safetensors.torch
 from types import SimpleNamespace
-from openpi_value.models.model import Observation
 
 
 from openpi_value.training import config as _config
 from openpi_value.shared import download
-import openpi_value.training.data_loader as _data
 from openpi_value.models_pytorch.pi0_pytorch import PI0Pytorch
 import openpi_value.models.tokenizer as _tokenizer
-from openpi_value.shared import image_tools
 
 import pandas as pd
 import numpy as np
 import torch
-from typing import Union, Tuple
-from PIL import Image
+from typing import Union
 # Import PyTorch standard libraries for image processing
 import torchvision.transforms.functional as F_tv # For resizing (on PIL Images or Tensors)
 import torch.nn.functional as F_nn # For padding (on Tensors)

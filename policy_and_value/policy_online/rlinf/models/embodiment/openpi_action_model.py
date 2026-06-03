@@ -33,9 +33,7 @@ from rlinf.models.embodiment.modules.dynamics_model import DynamicsModel
 from rlinf.models.embodiment.modules.reward_model import RewardModel, resize_with_pad_torch, process_view_torch_rm, write_episode_video_rm
 from rlinf.utils.wm_utils import process_observations_dual_arm, process_actions, concat_obs_and_original
 from einops import rearrange
-from openpi_client import image_tools
 
-import torch.distributed as dist
 from dataclasses import dataclass, replace
 from collections import deque
 import torch.nn.functional as F
