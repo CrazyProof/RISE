@@ -24,12 +24,8 @@ from transformers import (
     AutoTokenizer,
 )
 
-from rlinf.config import torch_dtype_from_precision
-
 
 def get_model(model_path, cfg: DictConfig, override_config_kwargs=None):
-    torch_dtype = torch_dtype_from_precision(cfg.precision)
-    
     if cfg.model_name == "openpi":
 
         import openpi_value.shared.download as download

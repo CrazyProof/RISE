@@ -261,8 +261,6 @@ class DynamicsModel:
         
         # saving predicted results
         if save_path is not None:
-            print(f"!!!!! Saving results to {save_path}...")
-
             os.makedirs(save_path, exist_ok=True)
             if self.args.return_video:
                 video = preds['video'].data.cpu()

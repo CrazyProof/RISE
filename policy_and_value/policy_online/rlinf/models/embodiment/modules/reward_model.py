@@ -159,9 +159,6 @@ def resize_with_pad_torch(
 
     original_shape = images.shape  # * torch.Size([8, 192, 256, 3])
 
-    # Flatten the batch dimensions into a single dimension for iteration
-    num_images = images.shape[0] if images.dim() >= 3 else 1
-    
     # Reshape to [N, H, W, C] where N is the flattened batch size
     flat_images = images.reshape(-1, *original_shape[-3:])
 
@@ -206,8 +203,6 @@ def write_episode_video_rm(
     current_time = pd.Timestamp.now().strftime("%m%d_%H%M%S")
 
     out_path = os.path.join(output_dir, f"episode_{episode_id:03d}_{current_time}.mp4")
-
-    print("!!!!!!Generating video to:", out_path)
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
 
