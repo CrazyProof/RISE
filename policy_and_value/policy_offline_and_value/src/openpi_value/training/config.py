@@ -444,21 +444,21 @@ _CONFIGS = [
 
         data = LerobotCustomAgilexDataConfig(
             repo_id = [
-                "data/sample_dataset",
+                "/root/cjq/RISE/data/bag_lerobot_w_adv",
             ],
-            default_prompt="Insert the memory stick.",
+            default_prompt="Zip up the bag.",
             use_delta_joint_actions=False,
 
 
             assets=AssetsConfig(
                 assets_dir="data/norms",
-                asset_id="sample_dataset",
+                asset_id="bag_lerobot",
             ),
         ),
 
 
         # * From scratch here
-        weight_loader=weight_loaders.CheckpointWeightLoader("path_to_ckpt/pi0_base/params"),
+        weight_loader=weight_loaders.CheckpointWeightLoader("/root/cjq/RISE/checkpoints/pi05_base/params"),
 
         num_train_steps=100_000,
         keep_period=5000,
@@ -466,7 +466,7 @@ _CONFIGS = [
 
         num_workers=8,
 
-        batch_size=64,  # * 8 gpus
+        batch_size=56,  # Must be divisible by the visible JAX device count.
     ),
     
 
@@ -485,15 +485,15 @@ _CONFIGS = [
         
         data = LerobotCustomAgilexDataConfig(
             repo_id = [
-                "data/sample_dataset",
+                "/root/cjq/RISE/data/bag_lerobot",
             ],
             
             assets=AssetsConfig(
                 assets_dir="data/norms",
-                asset_id="sample_dataset",
+                asset_id="bag_lerobot",
             ),
             
-            default_prompt="fold the box.",
+            default_prompt="Zip up the bag.",
             use_delta_joint_actions=False,
 
             repack_transforms=_transforms.Group(
@@ -513,7 +513,7 @@ _CONFIGS = [
             ),
         ),
         
-        pytorch_weight_path="path/to/ckpt",
+        pytorch_weight_path="/root/cjq/RISE/checkpoints/pi05_base_pytorch",
 
         num_train_steps=100_000,
         keep_period=20000,
@@ -540,15 +540,15 @@ _CONFIGS = [
         
         data = LerobotCustomAgilexDataConfig(
             repo_id = [
-                "data/sample_dataset",
+                "/root/cjq/RISE/data/bag_lerobot_w_adv",
             ],
             
             assets=AssetsConfig(
                 assets_dir="data/norms",
-                asset_id="sample_dataset",
+                asset_id="bag_lerobot",
             ),
             
-            default_prompt="fold the box.",
+            default_prompt="Zip up the bag.",
             use_delta_joint_actions=False,
 
             repack_transforms=_transforms.Group(
@@ -569,7 +569,7 @@ _CONFIGS = [
             ),
         ),
         
-        pytorch_weight_path="path/to/ckpt",
+        pytorch_weight_path="/root/cjq/RISE/policy_and_value/policy_offline_and_value/checkpoints/Pi05_style_training/Pi05_style_training/40000",
 
         num_train_steps=100_000,
         keep_period=20000,
@@ -614,17 +614,18 @@ _CONFIGS = [
         data=LerobotCustomAgilexDataConfig(
 
             repo_id = [
-                "data/sample_dataset",
+                "/root/cjq/RISE/data/bag_lerobot",
             ],
             
             assets=AssetsConfig(
                 assets_dir="data/norms",
-                asset_id="sample_dataset",
+                asset_id="bag_lerobot",
             ),
             
             base_config=DataConfig(
                 prompt_from_task=True,
             ),
+            use_delta_joint_actions=False,
             repack_transforms=_transforms.Group(
                 inputs=[
                 _transforms.RepackTransform(
@@ -654,9 +655,16 @@ _CONFIGS = [
             )
         ),
 
-        pytorch_weight_path="path/to/ckpt",
+        pytorch_weight_path="/root/cjq/RISE/policy_and_value/policy_offline_and_value/checkpoints/Pi05_style_training/Pi05_style_training/40000",
 
-        num_train_steps=100_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            peak_lr=2.5e-5,
+            decay_lr=2.5e-6,
+            decay_steps=50_000,
+        ),
+        optimizer=_optimizer.AdamW(),
+
+        num_train_steps=50_000,
         keep_period=10000,
         save_interval=10000,
 
@@ -702,17 +710,18 @@ _CONFIGS = [
         data=LerobotCustomAgilexDataConfig(
 
             repo_id = [
-                "data/sample_dataset",
+                "/root/cjq/RISE/data/bag_lerobot",
             ],
             
             assets=AssetsConfig(
                 assets_dir="data/norms",
-                asset_id="sample_dataset",
+                asset_id="bag_lerobot",
             ),
             
             base_config=DataConfig(
                 prompt_from_task=True,
             ),
+            use_delta_joint_actions=False,
             repack_transforms=_transforms.Group(
                 inputs=[
                 _transforms.RepackTransform(
@@ -742,13 +751,13 @@ _CONFIGS = [
             )
         ),
 
-        pytorch_weight_path="path/to/ckpt",
+        pytorch_weight_path=None,
 
         num_train_steps=50_000,
         keep_period=10000,
         save_interval=10000,
 
-        num_workers=8,
+        num_workers=4,
         batch_size=64,  # * 8 gpus
 
         n_future=1,

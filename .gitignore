@@ -7,7 +7,8 @@ dataset*/
 wandb/
 vis/
 ckpts/
-ckpts
+data/
+value_plots/
 
 dataset_*
 temp*
