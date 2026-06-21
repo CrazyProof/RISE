@@ -572,8 +572,11 @@ def main(
         inspect_only: Only inspect parameter keys, don't convert
     """
     model_config = _config.get_config(config_name).model
-    if not isinstance(model_config, openpi_value.models.pi0_config.Pi0Config):
-        raise ValueError(f"Config {config_name} is not a Pi0Config")
+    if not isinstance(
+        model_config,
+        (openpi_value.models.pi0_config.Pi0Config, openpi_value.models.pi0_config.Pi0Config_Custom),
+    ):
+        raise ValueError(f"Config {config_name} is not a Pi0Config or Pi0Config_Custom")
     if inspect_only:
         load_jax_model_and_print_keys(checkpoint_dir)
     else:
