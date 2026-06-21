@@ -436,6 +436,7 @@ def main(
     with_vis: bool = True,
     batch_size: int = 64, # * New: Increased batch size
     max_vis_episodes: int = 3, # * New: Limit visualizations to save time
+    vis_only: bool = False,
 ):
     """Main function to run value prediction and visualization."""
 
@@ -545,6 +546,7 @@ def main(
 
     i_bs = 0
     print(num_batches)
+    stop_after_vis = False
     
     for batch_observation, batch_actions in tqdm.tqdm(loader, total=num_batches, desc="Processing batches"):
 
@@ -607,10 +609,16 @@ def main(
                                 metric_only=metric_only,
                             )
                             vis_count += 1
+                            if vis_only and vis_count >= max_vis_episodes:
+                                stop_after_vis = True
+                                break
                 
                 # Clear buffers
                 value_frames.clear()
                 raw_frames.clear()
+
+                if stop_after_vis:
+                    break
 
             # Store value (Buffer)
             value_frames.append(val)
@@ -640,9 +648,12 @@ def main(
 
             prev_frame_index = cur_frame_idx
 
+        if stop_after_vis:
+            break
+
 
     # Write the very last episode
-    if len(value_frames) != 0:
+    if len(value_frames) != 0 and not stop_after_vis:
         print(f"Writing final episode {ep_index}.")
         np.save(os.path.join(temp_val_dir, f"ep_{ep_index}.npy"), np.array(value_frames))
         
@@ -659,6 +670,12 @@ def main(
                 metric_only=metric_only,
             )
 
+
+    if vis_only:
+        shutil.rmtree(temp_val_dir)
+        print(f"<<<<<< Finished generating {vis_count} visualization videos to: {output_dir}")
+        print("✅ Vis-only task done. Dataset labeling was skipped.")
+        return
 
 
     print(">>>>>> Finished processing all batches. Now adding value column to dataset...")
