@@ -1,6 +1,7 @@
 import logging
 import math
 import json
+import os
 import time as time_module
 
 import torch
@@ -238,7 +239,17 @@ class PI0Pytorch(nn.Module):
             
 
         torch.set_float32_matmul_precision("high")
-        self.sample_actions = torch.compile(self.sample_actions, mode="max-autotune")
+        # Eager inference is the safe default for deployment. In particular,
+        # max-autotune can spend long enough compiling Triton kernels on the
+        # first request that the policy client's WebSocket keepalive times out.
+        if os.environ.get("OPENPI_TORCH_COMPILE", "0").lower() in {"1", "true", "yes"}:
+            compile_mode = os.environ.get("OPENPI_TORCH_COMPILE_MODE", "reduce-overhead")
+            logging.info("Compiling sample_actions with torch.compile mode=%s", compile_mode)
+            self.sample_actions = torch.compile(self.sample_actions, mode=compile_mode)
+        else:
+            logging.info(
+                "Using eager sample_actions. Set OPENPI_TORCH_COMPILE=1 to enable torch.compile."
+            )
         
         # Initialize gradient checkpointing flag
         self.gradient_checkpointing_enabled = False
