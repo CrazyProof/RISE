@@ -118,7 +118,6 @@ def save_data(args, timesteps, actions, dataset_path):
         print(f'\033[32m\nVideo export done: {time.time() - t0:.1f} secs\033[0m')
 
 # ── RosOperator ───────────────────────────────────────────────────────────────
-from pynput import keyboard
 
 class RosOperator:
     def __init__(self, args):
@@ -142,6 +141,8 @@ class RosOperator:
         self.robot_base_deque = deque()
 
     def keyboard_listener(self):
+        from pynput import keyboard
+
         def on_press(key):
             if key == keyboard.Key.space:
                 self.stop_flag = True

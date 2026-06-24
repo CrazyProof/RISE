@@ -35,9 +35,24 @@ inference_collection_lock = threading.Lock()
 # save-data control
 save_data_requested = False
 save_data_lock = threading.Lock()
+original_terminal_settings = None
 
 lang_embeddings = "Pick and sort bricks on the conveyor."
 RIGHT_OFFSET = 0.003
+
+
+def remember_terminal_settings():
+    global original_terminal_settings
+    if original_terminal_settings is None and sys.stdin.isatty():
+        original_terminal_settings = termios.tcgetattr(sys.stdin)
+
+
+def restore_terminal_settings():
+    if original_terminal_settings is not None and sys.stdin.isatty():
+        try:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, original_terminal_settings)
+        except termios.error:
+            pass
 
 
 class InferenceDataCollector:
@@ -1126,6 +1141,7 @@ def get_arguments():
 
 
 def main():
+    remember_terminal_settings()
     args = get_arguments()
     try:
         ros_operator = RosOperator(args)
@@ -1140,6 +1156,7 @@ def main():
         import traceback
         traceback.print_exc()
     finally:
+        restore_terminal_settings()
         print("Program exited")
 
 
