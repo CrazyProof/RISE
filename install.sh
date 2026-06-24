@@ -6,8 +6,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OFFLINE_DIR="${ROOT_DIR}/policy_and_value/policy_offline_and_value"
 DYNAMICS_DIR="${ROOT_DIR}/dynamics"
 PIP_INDEX_URL=https://pypi.org/simple
-pip config unset global.index-url
-pip config unset global.trusted-host
 
 
 (
